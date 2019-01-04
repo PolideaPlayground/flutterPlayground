@@ -1,16 +1,17 @@
 import 'package:english_words/english_words.dart';
 
 class NickRepository {
-  final _suggestions = <WordPair>[];
+  final _suggestions = <String>[];
 
-  List<WordPair> fetch() {
+  List<String> fetch() {
     if (_suggestions.isEmpty) {
-      _loadNextPage();
+      loadNextPage();
     }
     return _suggestions;
   }
 
-  void _loadNextPage() {
-    _suggestions.addAll(generateWordPairs().take(10));
+  void loadNextPage() {
+    _suggestions.addAll(
+        generateWordPairs().take(10).map((wordPair) => wordPair.asPascalCase));
   }
 }
