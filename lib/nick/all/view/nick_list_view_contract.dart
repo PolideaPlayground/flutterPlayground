@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wear_hint/nick/presenter/nick_list_presenter.dart';
+import 'package:wear_hint/nick/all/presenter/nick_list_presenter.dart';
 
 abstract class NickListViewContract {
-  Widget buildContent(List<String> nickNames);
+  Widget buildContent(List<String> nickNames, List<String> saved);
 }
 
 class NickListView extends NickListViewContract {
@@ -25,42 +25,33 @@ class NickListView extends NickListViewContract {
   }
 
   @override
-  Widget buildContent(List<String> nickNames) {
-   ListTile.divideTiles(tiles: null)
+  Widget buildContent(List<String> nickNames, List<String> liked) {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         controller: _scrollController,
         itemCount: 2 * nickNames.length,
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return Divider(); /*2*/
-//
-//          final index = i ~/ 2; /*3*/
-//          if (index >= _suggestions.length) {
-//            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-//          }
-//          return _buildRow(_suggestions[index]);
-          return _buildRow(nickNames[(i / 2).floor()]);
+        itemBuilder: (context, i) {
+          if (i.isOdd) return Divider();
+
+          final nickName = nickNames[i ~/ 2];
+          final isLiked = liked.contains(nickName);
+          return _buildRow(nickName, isLiked);
         });
   }
 
-  Widget _buildRow(String nickName) {
+  Widget _buildRow(String nickName, bool isLiked) {
     return ListTile(
       title: Text(
         nickName,
         style: _biggerFont,
       ),
       trailing: new Icon(
-          // Add the lines from here...
-          Icons.favorite_border),
-//      onTap: () {
-//        setState(() {
-//          if (alreadySaved) {
-//            _saved.remove(pair);
-//          } else {
-//            _saved.add(pair);
-//          }
-//        });
-//      },
+        isLiked ? Icons.favorite : Icons.favorite_border,
+        color: isLiked ? Colors.red : null,
+      ),
+      onTap: () {
+        _presenter.toggle(nickName);
+      },
     );
   }
 }
