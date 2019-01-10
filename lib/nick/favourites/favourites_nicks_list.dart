@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
-import 'package:wear_hint/nick/nick_state.dart';
+import 'package:wear_hint/nick/nick_bloc.dart';
+import 'package:wear_hint/nick/nick_provider.dart';
 
 class FavouritesNicksListViewModel {
   final List<String> favouritesNicks;
 
-  FavouritesNicksListViewModel.fromStore(Store<NickListState> store)
-      : favouritesNicks = store.state.saved;
+  FavouritesNicksListViewModel(this.favouritesNicks);
 }
 
 class FavouritesNicksList extends StatelessWidget {
@@ -17,18 +15,19 @@ class FavouritesNicksList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NickBloc _nickBloc = NicksProvider.of(context);
     return new Scaffold(
         appBar: new AppBar(
           title: const Text('The Best Nicks'),
         ),
-        body: StoreConnector<NickListState, FavouritesNicksListViewModel>(
-          converter: (store) => FavouritesNicksListViewModel.fromStore(store),
-          builder: (context, viewModel) => _buildContent(context, viewModel),
-        ));
+        body: StreamBuilder<List<String>>(
+            stream: _nickBloc.favourites,
+            builder: (context, snapshot) =>
+                _buildContent(context, snapshot.data)));
   }
 
-  _buildContent(BuildContext context, FavouritesNicksListViewModel viewModel) {
-    final Iterable<ListTile> tiles = viewModel.favouritesNicks.map(
+  _buildContent(BuildContext context, List<String> favouritesNicks) {
+    final Iterable<ListTile> tiles = favouritesNicks.map(
       (String nick) {
         return new ListTile(
           title: new Text(
