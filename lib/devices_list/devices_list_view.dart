@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:wear_hint/devices_list/devices_bloc.dart';
+import 'package:wear_hint/model/ble_device.dart';
+
+typedef DeviceTapListener = void Function();
+
+class DevicesListScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    DevicesBloc devicesBloc = DevicesBloc();
+    devicesBloc.applicationState.listen(
+        (applicationState) => Navigator.pushNamed(context, "/details")
+    );
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('BLE devices'),
+        ),
+        body: StreamBuilder<List<BleDevice>>(
+          initialData: devicesBloc.visibleDevices.value,
+          stream: devicesBloc.visibleDevices,
+          builder: (context, snapshot) =>
+              DevicesList(devicesBloc, snapshot.data),
+        ));
+  }
+}
+
+class DevicesList extends ListView {
+  static final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
+      : super.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: devices.length,
+            itemBuilder: (context, i) {
+              print("Build row for $i");
+              return _buildRow(
+                  devices[i], _createTapListener(devicesBloc, devices[i]));
+            });
+
+  static DeviceTapListener _createTapListener(
+      DevicesBloc devicesBloc, BleDevice bleDevice) {
+    return () {
+      print("clicked device: ${bleDevice.name}");
+      devicesBloc.devicePicker.add(bleDevice);
+    };
+  }
+
+  static Widget _buildRow(
+      BleDevice device, DeviceTapListener deviceTapListener) {
+    return ListTile(
+      title: Text(device.name, style: _biggerFont),
+      onTap: deviceTapListener,
+    );
+  }
+}
