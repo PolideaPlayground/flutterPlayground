@@ -29,8 +29,8 @@ class DevicesBloc {
     flutterBlue.setLogLevel(LogLevel.error);
 
     _scanSubscription = flutterBlue.scan().listen((ScanResult scanResult) {
-      var bleDevice = BleDevice(
-          scanResult.advertisementData.localName, scanResult.device.id);
+      var bleDevice = BleDevice.disconnected(
+          scanResult.advertisementData.localName, scanResult.device);
       if (scanResult.advertisementData.localName.isNotEmpty &&
           !bleDevices.contains(bleDevice)) {
         print(
