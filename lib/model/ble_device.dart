@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BleDevice {
+  int counter = 0;
   final String name;
   final DeviceIdentifier id;
   final BluetoothDevice bluetoothDevice;
@@ -25,6 +26,12 @@ class BleDevice {
   @override
   bool operator ==(other) =>
       other is BleDevice && compareAsciiLowerCase(this.id.id, other.id.id) == 0;
+
+  @override
+  String toString() {
+    return 'BleDevice{counter: $counter, name: $name, id: $id, bluetoothDevice: $bluetoothDevice, bluetoothDeviceState: $bluetoothDeviceState}';
+  }
+
 }
 
 class DisconnectedBleDevice extends BleDevice {
@@ -41,8 +48,6 @@ class DisconnectedBleDevice extends BleDevice {
         "${name} \n"
         " isConnected: ${bluetoothDeviceState}";
   }
-
-
 }
 
 class ConnectedBleDevice extends BleDevice {
@@ -61,7 +66,7 @@ class ConnectedBleDevice extends BleDevice {
     var buffer = StringBuffer();
     buffer.write("ConnectedBleDevice\n");
     buffer.write("name: $name\n");
-    services.forEach((service) => buffer.write("${service.uuid}\n\n"));
+    services?.forEach((service) => buffer.write("${service.uuid}\n\n"));
     return buffer.toString();
   }
 
