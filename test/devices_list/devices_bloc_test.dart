@@ -11,10 +11,24 @@ import '../mocks/mocks.dart';
 
 
 void main() {
+  FlutterBlueMock flutterBlueMock;
+  BluetoothDevice bluetoothDevice1;
+  BluetoothDevice bluetoothDevice2;
+  BleDevice bleDevice1;
+  BleDevice bleDevice2;
+  DevicesBloc devicesBloc;
+
+  setUp(() {
+    flutterBlueMock = FlutterBlueMock();
+    bluetoothDevice1 = BluetoothDeviceFactory.build(name: "name1", id: "id1");
+    bluetoothDevice2= BluetoothDeviceFactory.build(name: "name2", id: "id2");
+    bleDevice1 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice1);
+    bleDevice2 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice2);
+    devicesBloc = DevicesBloc(flutterBlueMock);
+  });
+
   test('should emit empty list on startup', () {
     //given
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    DevicesBloc devicesBloc = DevicesBloc(flutterBlueMock);
     when(flutterBlueMock.scan()).thenAnswer((_) => Observable.never());
 
     //when
@@ -29,8 +43,6 @@ void main() {
 
   test('should return first scanned device', () {
     //given
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    DevicesBloc devicesBloc = DevicesBloc(flutterBlueMock);
     BluetoothDevice bluetoothDevice = BluetoothDeviceFactory.build();
     BleDevice bleDevice = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice);
 
@@ -54,13 +66,6 @@ void main() {
 
   test("should emit list of all discovered devices", () {
     //given
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    DevicesBloc devicesBloc = DevicesBloc(flutterBlueMock);
-    BluetoothDevice bluetoothDevice1 = BluetoothDeviceFactory.build(name: "name1", id: "id1");
-    BluetoothDevice bluetoothDevice2= BluetoothDeviceFactory.build(name: "name2", id: "id2");
-    BleDevice bleDevice1 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice1);
-    BleDevice bleDevice2 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice2);
-
     when(flutterBlueMock.scan())
         .thenAnswer((_) =>
         Observable.fromIterable([
@@ -82,13 +87,6 @@ void main() {
 
   test("should not emit twice the same device", () {
     //given
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    DevicesBloc devicesBloc = DevicesBloc(flutterBlueMock);
-    BluetoothDevice bluetoothDevice1 = BluetoothDeviceFactory.build(name: "name1", id: "id1");
-    BluetoothDevice bluetoothDevice2= BluetoothDeviceFactory.build(name: "name2", id: "id2");
-    BleDevice bleDevice1 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice1);
-    BleDevice bleDevice2 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice2);
-
     when(flutterBlueMock.scan())
         .thenAnswer((_) =>
         Observable.fromIterable([
@@ -111,12 +109,6 @@ void main() {
 
   test("should not emit device without local name", () {
     //given
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    DevicesBloc devicesBloc = DevicesBloc(flutterBlueMock);
-    BluetoothDevice bluetoothDevice1 = BluetoothDeviceFactory.build(name: "name1", id: "id1");
-    BluetoothDevice bluetoothDevice2= BluetoothDeviceFactory.build(name: "name2", id: "id2");
-    BleDevice bleDevice2 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice2);
-
     when(flutterBlueMock.scan())
         .thenAnswer((_) =>
         Observable.fromIterable([
