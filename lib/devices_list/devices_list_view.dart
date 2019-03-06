@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
@@ -17,14 +19,19 @@ class DevicesListScreen extends StatefulWidget {
 class DeviceListScreenState extends State<DevicesListScreen> {
 
   DevicesBloc _devicesBloc;
+  StreamSubscription _appStateSubscription;
+
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _devicesBloc = DevicesBlocProvider.of(context);
-    _devicesBloc.applicationState.listen(
+    _devicesBloc.init();
+    _appStateSubscription?.cancel();
+    _appStateSubscription = _devicesBloc.applicationState.listen(
             (applicationState) => Navigator.pushNamed(context, "/details")
     );
+
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 
 class DevicesBlocProvider extends InheritedWidget {
@@ -8,7 +9,7 @@ class DevicesBlocProvider extends InheritedWidget {
     Key key,
     DevicesBloc devicesBloc,
     Widget child,
-  })  : devicesBloc = devicesBloc ?? DevicesBloc(),
+  })  : devicesBloc = devicesBloc ?? DevicesBloc(FlutterBlue.instance),
         super(key: key, child: child);
 
   @override

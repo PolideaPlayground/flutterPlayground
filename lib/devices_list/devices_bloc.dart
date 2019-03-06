@@ -24,23 +24,13 @@ class DevicesBloc {
 
   Sink<BleDevice> get devicePicker => _devicePickerController.sink;
 
-  DevicesBloc() {
-    FlutterBlue flutterBlue = FlutterBlue.instance;
-    flutterBlue.setLogLevel(LogLevel.error);
+  FlutterBlue _flutterBlue;
 
-    _scanSubscription = flutterBlue.scan().listen((ScanResult scanResult) {
-      var bleDevice = BleDevice.disconnected(
-          scanResult.advertisementData.localName, scanResult.device);
-      if (scanResult.advertisementData.localName.isNotEmpty &&
-          !bleDevices.contains(bleDevice)) {
-        print(
-            'found new device ${scanResult.advertisementData.localName} ${scanResult.device.id}');
-        bleDevices.add(bleDevice);
-        _visibleDevicesController.add(bleDevices);
-      }
-    });
+  DevicesBloc(this._flutterBlue) {
+//    FlutterBlue flutterBlue = FlutterBlue.instance;
+    _flutterBlue.setLogLevel(LogLevel.error);
 
-    _devicePickerController.stream.listen(_handlePickedDevice);
+//    _devicePickerController.stream.listen(_handlePickedDevice);
   }
 
   void _handlePickedDevice(BleDevice bleDevice) {
@@ -53,5 +43,20 @@ class DevicesBloc {
     _devicePickerController.close();
     _scanSubscription?.cancel();
     _applicationStateController?.close();
+  }
+
+  void init() {
+    _scanSubscription = _flutterBlue.scan().listen((ScanResult scanResult) {
+      var bleDevice = BleDevice.disconnected(
+          scanResult.advertisementData.localName, scanResult.device);
+      if (scanResult.advertisementData.localName.isNotEmpty &&
+          !bleDevices.contains(bleDevice)) {
+        print(
+            'found new device ${scanResult.advertisementData
+                .localName} ${scanResult.device.id}');
+        bleDevices.add(bleDevice);
+        _visibleDevicesController.add(bleDevices.sublist(0));
+      }
+    });
   }
 }

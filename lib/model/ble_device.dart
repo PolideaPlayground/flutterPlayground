@@ -44,9 +44,7 @@ class DisconnectedBleDevice extends BleDevice {
 
   @override
   String toString() {
-    return "Device \n"
-        "${name} \n"
-        " isConnected: ${bluetoothDeviceState}";
+    return 'DisconnectedBleDevice{} ${super.toString()}';
   }
 }
 
