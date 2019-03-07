@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wear_hint/device_details/device_details_view.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
+import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
 import 'package:wear_hint/devices_list/devices_list_view.dart';
 import 'package:wear_hint/nick/all/nick_list_widget.dart';
 import 'package:wear_hint/nick/favourites/favourites_nicks_list.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         title: 'Weather station',
         initialRoute: "/",
         routes: <String, WidgetBuilder>{
-          "/": (context) => DevicesListScreen(),
+          "/": (context) => DevicesBlocProvider(child: DevicesListScreen()),
           "/details": (context) => DeviceDetailsView(),
         },
       ),

@@ -1,27 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
+import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
 import 'package:wear_hint/model/ble_device.dart';
 
 typedef DeviceTapListener = void Function();
 
-class DevicesListScreen extends StatelessWidget {
+class DevicesListScreen extends StatefulWidget {
+
+  @override
+  State<DevicesListScreen> createState() {
+    return DeviceListScreenState();
+  }
+}
+
+class DeviceListScreenState extends State<DevicesListScreen> {
+
+  DevicesBloc _devicesBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _devicesBloc = DevicesBlocProvider.of(context);
+    _devicesBloc.applicationState.listen(
+            (applicationState) => Navigator.pushNamed(context, "/details")
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    DevicesBloc devicesBloc = DevicesBloc();
-    devicesBloc.applicationState.listen(
-        (applicationState) => Navigator.pushNamed(context, "/details")
-    );
     return Scaffold(
-        appBar: AppBar(
-          title: Text('BLE devices'),
-        ),
-        body: StreamBuilder<List<BleDevice>>(
-          initialData: devicesBloc.visibleDevices.value,
-          stream: devicesBloc.visibleDevices,
-          builder: (context, snapshot) =>
-              DevicesList(devicesBloc, snapshot.data),
-        ));
+      appBar: AppBar(
+        title: Text('BLE devices'),
+      ),
+      body:  StreamBuilder<List<BleDevice>>(
+        initialData: _devicesBloc.visibleDevices.value,
+        stream: _devicesBloc.visibleDevices,
+        builder: (context, snapshot) =>
+            DevicesList(_devicesBloc, snapshot.data),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _devicesBloc.dispose();
   }
 }
 
