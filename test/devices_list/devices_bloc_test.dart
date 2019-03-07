@@ -24,7 +24,7 @@ void main() {
     bluetoothDevice2= BluetoothDeviceFactory.build(name: "name2", id: "id2");
     bleDevice1 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice1);
     bleDevice2 = BleDeviceFactory.buildDisconnected(bluetoothDevice: bluetoothDevice2);
-    devicesBloc = DevicesBloc(flutterBlueMock);
+    devicesBloc = DevicesBloc(flutterBlueMock, DeviceRepositoryMock());
   });
 
   test('should emit empty list on startup', () {
