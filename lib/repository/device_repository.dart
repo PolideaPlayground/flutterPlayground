@@ -16,7 +16,6 @@ class DeviceRepository {
 
   DeviceRepository._internal();
 
-
   void pickDevice(BleDevice bleDevice) {
     _bleDevice = bleDevice;
   }

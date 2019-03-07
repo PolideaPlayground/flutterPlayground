@@ -25,16 +25,14 @@ class DevicesBloc {
   Sink<BleDevice> get devicePicker => _devicePickerController.sink;
 
   FlutterBlue _flutterBlue;
+  DeviceRepository _deviceRepository;
 
-  DevicesBloc(this._flutterBlue) {
-//    FlutterBlue flutterBlue = FlutterBlue.instance;
+  DevicesBloc(this._flutterBlue, this._deviceRepository) {
     _flutterBlue.setLogLevel(LogLevel.error);
-
-//    _devicePickerController.stream.listen(_handlePickedDevice);
   }
 
   void _handlePickedDevice(BleDevice bleDevice) {
-    DeviceRepository().pickDevice(bleDevice);
+    _deviceRepository.pickDevice(bleDevice);
     _applicationStateController.add(ApplicationState.DEVICE_PICKED);
   }
 
@@ -58,5 +56,8 @@ class DevicesBloc {
         _visibleDevicesController.add(bleDevices.sublist(0));
       }
     });
+    print("Init");
+
+    _devicePickerController.stream.listen(_handlePickedDevice);
   }
 }
