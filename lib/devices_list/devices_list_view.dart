@@ -40,7 +40,7 @@ class DeviceListScreenState extends State<DevicesListScreen> {
       appBar: AppBar(
         title: Text('BLE devices'),
       ),
-      body:  StreamBuilder<List<BleDevice>>(
+      body: StreamBuilder<List<BleDevice>>(
         initialData: _devicesBloc.visibleDevices.value,
         stream: _devicesBloc.visibleDevices,
         builder: (context, snapshot) =>
