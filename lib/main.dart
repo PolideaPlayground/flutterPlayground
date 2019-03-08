@@ -8,7 +8,6 @@ import 'package:wear_hint/nick/favourites/favourites_nicks_list.dart';
 import 'package:wear_hint/nick/nick_provider.dart';
 
 void main() {
-  DevicesBloc devicesBloc = DevicesBloc();
   runApp(MyApp());
 }
 

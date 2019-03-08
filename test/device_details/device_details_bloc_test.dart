@@ -8,10 +8,8 @@ import 'package:wear_hint/device_details/device_details_bloc.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:wear_hint/repository/device_repository.dart';
 
+import '../mocks/mocks.dart';
 
-class FlutterBlueMock extends Mock implements FlutterBlue {}
-class DeviceRepositoryMock extends Mock implements DeviceRepository {}
-class BluetoothDeviceMock extends Mock implements BluetoothDevice {}
 
 void main() {
   test('should emit picked device on startup', () {
