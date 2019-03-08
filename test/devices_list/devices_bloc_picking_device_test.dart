@@ -34,7 +34,7 @@ void main() {
     await untilCalled(deviceRepositoryMock.pickDevice(argThat(equals(bleDevice))));
   });
 
-  test("should change app state one device is picked", () {
+  test("should change app state once device is picked", () {
     //given
     devicesBloc.init();
 
