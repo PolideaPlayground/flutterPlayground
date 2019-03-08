@@ -37,6 +37,7 @@ class DevicesBloc {
   }
 
   void dispose() {
+    print("<----Dispose DevicesBloc");
     _visibleDevicesController.close();
     _devicePickerController.close();
     _scanSubscription?.cancel();
@@ -44,6 +45,7 @@ class DevicesBloc {
   }
 
   void init() {
+    print("---->Init DevicesBloc");
     _scanSubscription = _flutterBlue.scan().listen((ScanResult scanResult) {
       var bleDevice = BleDevice.disconnected(
           scanResult.advertisementData.localName, scanResult.device);
@@ -56,7 +58,6 @@ class DevicesBloc {
         _visibleDevicesController.add(bleDevices.sublist(0));
       }
     });
-    print("Init");
 
     _devicePickerController.stream.listen(_handlePickedDevice);
   }

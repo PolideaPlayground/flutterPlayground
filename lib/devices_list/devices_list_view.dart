@@ -14,6 +14,8 @@ class DevicesListScreen extends StatefulWidget {
   State<DevicesListScreen> createState() {
     return DeviceListScreenState();
   }
+
+
 }
 
 class DeviceListScreenState extends State<DevicesListScreen> {
@@ -25,18 +27,24 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _devicesBloc = DevicesBlocProvider.of(context);
-    _devicesBloc.init();
-    _appStateSubscription?.cancel();
-    _appStateSubscription = _devicesBloc.applicationState.listen(
-            (applicationState) => Navigator.pushNamed(context, "/details")
-    );
-
+    print("DeviceListScreenState didChangeDependencies");
+    if (_devicesBloc == null) {
+      _devicesBloc = DevicesBlocProvider.of(context);
+      _devicesBloc.init();
+      _appStateSubscription = _devicesBloc.applicationState.listen(
+              (applicationState) {
+                print("navigate to details");
+                Navigator.pushNamed(context, "/details");
+              }
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    print("build DeviceListScreenState");
     return Scaffold(
+      backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
       appBar: AppBar(
         title: Text('BLE devices'),
       ),
@@ -52,6 +60,7 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   @override
   void dispose() {
     super.dispose();
+    _appStateSubscription.cancel();
     _devicesBloc.dispose();
   }
 }
@@ -62,6 +71,7 @@ class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.builder(
             padding: const EdgeInsets.all(16.0),
+//            shrinkWrap: true,
             itemCount: devices.length,
             itemBuilder: (context, i) {
               print("Build row for $i");
@@ -79,9 +89,24 @@ class DevicesList extends ListView {
 
   static Widget _buildRow(
       BleDevice device, DeviceTapListener deviceTapListener) {
-    return ListTile(
-      title: Text(device.name, style: _biggerFont),
-      onTap: deviceTapListener,
+    return Card(
+      elevation: 8.0,
+      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: Container(
+        decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+        child: ListTile(
+          title: Text(device.name, style: _biggerFont),
+          trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+          leading: Container(
+            padding: EdgeInsets.only(right: 12.0),
+            decoration: new BoxDecoration(
+                border: new Border(
+                    right: new BorderSide(width: 1.0, color: Colors.white24))),
+            child: Icon(Icons.autorenew, color: Colors.white),
+          ),
+          onTap: deviceTapListener,
+        ),
+      ),
     );
   }
 }

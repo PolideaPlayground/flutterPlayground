@@ -17,6 +17,9 @@ class MyApp extends StatelessWidget {
     return NicksProvider(
       child: MaterialApp(
         title: 'Weather station',
+        theme: new ThemeData(
+            primaryColor: Color.fromRGBO(58, 66, 86, 1.0),
+        ),
         initialRoute: "/",
         routes: <String, WidgetBuilder>{
           "/": (context) => DevicesBlocProvider(child: DevicesListScreen()),
