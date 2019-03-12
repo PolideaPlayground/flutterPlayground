@@ -6,10 +6,14 @@ import 'package:wear_hint/devices_list/devices_list_view.dart';
 import 'package:wear_hint/nick/all/nick_list_widget.dart';
 import 'package:wear_hint/nick/favourites/favourites_nicks_list.dart';
 import 'package:wear_hint/nick/nick_provider.dart';
+import 'package:fimber/fimber.dart';
+
 
 void main() {
+  Fimber.plantTree(DebugTree());
   runApp(MyApp());
 }
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class MyApp extends StatelessWidget {
   @override
@@ -24,7 +28,9 @@ class MyApp extends StatelessWidget {
         routes: <String, WidgetBuilder>{
           "/": (context) => DevicesBlocProvider(child: DevicesListScreen()),
           "/details": (context) => DeviceDetailsView(),
+          "/details2": (context) => DeviceDetailsView(),
         },
+        navigatorObservers: [routeObserver],
       ),
     );
   }

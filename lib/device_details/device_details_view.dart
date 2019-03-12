@@ -19,7 +19,7 @@ class DeviceDetailsView extends StatelessWidget {
         builder: (context, snapshot) =>
             Center(
             child: Text(snapshot.data.toString()),
-          ),
+          )
       )
     );
   }

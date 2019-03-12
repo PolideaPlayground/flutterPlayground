@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fimber/fimber.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:wear_hint/model/ble_device.dart';
@@ -9,15 +10,16 @@ import 'package:wear_hint/state/application_state.dart';
 class DevicesBloc {
   final List<BleDevice> bleDevices = <BleDevice>[];
 
-  final BehaviorSubject<List<BleDevice>> _visibleDevicesController =
+  BehaviorSubject<List<BleDevice>> _visibleDevicesController =
       BehaviorSubject<List<BleDevice>>(seedValue: <BleDevice>[]);
 
-  final _devicePickerController = StreamController<BleDevice>();
-  final _applicationStateController = StreamController<ApplicationState>();
+  StreamController<BleDevice> _devicePickerController = StreamController<BleDevice>();
+  StreamController<ApplicationState> _applicationStateController = StreamController<ApplicationState>();
 
   Stream<ApplicationState> get applicationState => _applicationStateController.stream;
 
   StreamSubscription<ScanResult> _scanSubscription;
+  StreamSubscription _devicePickerSubscription;
 
   ValueObservable<List<BleDevice>> get visibleDevices =>
       _visibleDevicesController.stream;
@@ -37,7 +39,8 @@ class DevicesBloc {
   }
 
   void dispose() {
-    print("<----Dispose DevicesBloc");
+    Fimber.d("cancel _devicePickerSubscription");
+    _devicePickerSubscription.cancel();
     _visibleDevicesController.close();
     _devicePickerController.close();
     _scanSubscription?.cancel();
@@ -45,13 +48,24 @@ class DevicesBloc {
   }
 
   void init() {
-    print("---->Init DevicesBloc");
+    if (_visibleDevicesController.isClosed) {
+      _visibleDevicesController = BehaviorSubject<List<BleDevice>>(seedValue: <BleDevice>[]);
+    }
+
+    if (_devicePickerController.isClosed) {
+      _devicePickerController = StreamController<BleDevice>();
+    }
+
+    if (_applicationStateController.isClosed) {
+      _applicationStateController = StreamController<ApplicationState>();
+    }
+
     _scanSubscription = _flutterBlue.scan().listen((ScanResult scanResult) {
       var bleDevice = BleDevice.disconnected(
           scanResult.advertisementData.localName, scanResult.device);
       if (scanResult.advertisementData.localName.isNotEmpty &&
           !bleDevices.contains(bleDevice)) {
-        print(
+        Fimber.d(
             'found new device ${scanResult.advertisementData
                 .localName} ${scanResult.device.id}');
         bleDevices.add(bleDevice);
@@ -59,6 +73,7 @@ class DevicesBloc {
       }
     });
 
-    _devicePickerController.stream.listen(_handlePickedDevice);
+    Fimber.d(" listen to _devicePickerController.stream");
+    _devicePickerSubscription = _devicePickerController.stream.listen(_handlePickedDevice);
   }
 }
