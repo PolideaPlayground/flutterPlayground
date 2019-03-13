@@ -48,11 +48,11 @@ void main() {
 
     when(flutterBlueMock.scan())
         .thenAnswer((_) =>
-          Observable.just(
-              ScanResultFactory
+        Observable.just(
+            ScanResultFactory
                 .build(bluetoothDevice: bluetoothDevice)
-          )
-        );
+        )
+    );
 
     //then
     expectLater(devicesBloc.visibleDevices, emitsInOrder([
@@ -69,8 +69,8 @@ void main() {
     when(flutterBlueMock.scan())
         .thenAnswer((_) =>
         Observable.fromIterable([
-            ScanResultFactory.build(bluetoothDevice: bluetoothDevice1),
-            ScanResultFactory.build(bluetoothDevice: bluetoothDevice2),
+          ScanResultFactory.build(bluetoothDevice: bluetoothDevice1),
+          ScanResultFactory.build(bluetoothDevice: bluetoothDevice2),
         ])
     );
 

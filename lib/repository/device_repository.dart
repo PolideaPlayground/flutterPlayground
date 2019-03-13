@@ -20,7 +20,8 @@ class DeviceRepository {
     _bleDevice = bleDevice;
   }
 
-  BleDevice get pickedDevice => _bleDevice != null ? _bleDevice : throw MissingPickedDeviceException();
+//  BleDevice get pickedDevice => _bleDevice != null ? _bleDevice : throw MissingPickedDeviceException();
+  BleDevice get pickedDevice =>_bleDevice;
 
   bool get hasPickedDevice => _bleDevice != null;
 

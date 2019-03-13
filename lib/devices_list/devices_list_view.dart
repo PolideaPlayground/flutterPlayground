@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
 import 'package:wear_hint/model/ble_device.dart';
+import 'package:wear_hint/repository/device_repository.dart';
 
 typedef DeviceTapListener = void Function();
 
@@ -14,6 +18,8 @@ class DevicesListScreen extends StatefulWidget {
   State<DevicesListScreen> createState() {
     return DeviceListScreenState();
   }
+
+
 }
 
 class DeviceListScreenState extends State<DevicesListScreen> {
@@ -21,22 +27,55 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   DevicesBloc _devicesBloc;
   StreamSubscription _appStateSubscription;
 
+  @override
+  void didUpdateWidget(DevicesListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    Fimber.d("didUpdateWidget");
+  }
+
+  void _onPause() {
+    Fimber.d("onPause");
+    _appStateSubscription.cancel();
+    _devicesBloc.dispose();
+  }
+
+  void _onResume() {
+    Fimber.d("onResume");
+    _devicesBloc.init();
+    _appStateSubscription = _devicesBloc.applicationState.listen(
+            (applicationState) async {
+              Fimber.d("navigate to details");
+          _onPause();
+          await Navigator.pushNamed(context, "/details");
+          _shouldRunOnResume = true;
+          Fimber.d("back from details");
+        });
+  }
+
+  bool _shouldRunOnResume = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _devicesBloc = DevicesBlocProvider.of(context);
-    _devicesBloc.init();
-    _appStateSubscription?.cancel();
-    _appStateSubscription = _devicesBloc.applicationState.listen(
-            (applicationState) => Navigator.pushNamed(context, "/details")
-    );
-
+    Fimber.d("DeviceListScreenState didChangeDependencies");
+    if (_devicesBloc == null) {
+      _devicesBloc = DevicesBlocProvider.of(context);
+      if (_shouldRunOnResume) {
+        _shouldRunOnResume = false;
+        _onResume();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Fimber.d("build DeviceListScreenState");
+    if (_shouldRunOnResume) {
+      _shouldRunOnResume = false;
+      _onResume();
+    }
     return Scaffold(
+      backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
       appBar: AppBar(
         title: Text('BLE devices'),
       ),
@@ -51,9 +90,24 @@ class DeviceListScreenState extends State<DevicesListScreen> {
 
   @override
   void dispose() {
+    Fimber.d("Dispose DeviceListScreenState");
+    _onPause();
     super.dispose();
-    _devicesBloc.dispose();
   }
+
+  @override
+  void deactivate() {
+    print("deactivate");
+    super.deactivate();
+  }
+
+  @override
+  void reassemble() {
+    Fimber.d("reassemble");
+    super.reassemble();
+  }
+
+
 }
 
 class DevicesList extends ListView {
@@ -62,9 +116,10 @@ class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.builder(
             padding: const EdgeInsets.all(16.0),
+//            shrinkWrap: true,
             itemCount: devices.length,
             itemBuilder: (context, i) {
-              print("Build row for $i");
+              Fimber.d("Build row for $i");
               return _buildRow(
                   devices[i], _createTapListener(devicesBloc, devices[i]));
             });
@@ -72,16 +127,31 @@ class DevicesList extends ListView {
   static DeviceTapListener _createTapListener(
       DevicesBloc devicesBloc, BleDevice bleDevice) {
     return () {
-      print("clicked device: ${bleDevice.name}");
+      Fimber.d("clicked device: ${bleDevice.name}");
       devicesBloc.devicePicker.add(bleDevice);
     };
   }
 
   static Widget _buildRow(
       BleDevice device, DeviceTapListener deviceTapListener) {
-    return ListTile(
-      title: Text(device.name, style: _biggerFont),
-      onTap: deviceTapListener,
+    return Card(
+      elevation: 8.0,
+      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: Container(
+        decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+        child: ListTile(
+          title: Text(device.name, style: _biggerFont),
+          trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+          leading: Container(
+            padding: EdgeInsets.only(right: 12.0),
+            decoration: new BoxDecoration(
+                border: new Border(
+                    right: new BorderSide(width: 1.0, color: Colors.white24))),
+            child: Icon(Icons.autorenew, color: Colors.white),
+          ),
+          onTap: deviceTapListener,
+        ),
+      ),
     );
   }
 }
