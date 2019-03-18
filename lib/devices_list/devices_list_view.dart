@@ -13,17 +13,13 @@ import 'package:wear_hint/repository/device_repository.dart';
 typedef DeviceTapListener = void Function();
 
 class DevicesListScreen extends StatefulWidget {
-
   @override
   State<DevicesListScreen> createState() {
     return DeviceListScreenState();
   }
-
-
 }
 
 class DeviceListScreenState extends State<DevicesListScreen> {
-
   DevicesBloc _devicesBloc;
   StreamSubscription _appStateSubscription;
 
@@ -42,14 +38,14 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   void _onResume() {
     Fimber.d("onResume");
     _devicesBloc.init();
-    _appStateSubscription = _devicesBloc.applicationState.listen(
-            (applicationState) async {
-              Fimber.d("navigate to details");
-          _onPause();
-          await Navigator.pushNamed(context, "/details");
-          _shouldRunOnResume = true;
-          Fimber.d("back from details");
-        });
+    _appStateSubscription =
+        _devicesBloc.applicationState.listen((applicationState) async {
+      Fimber.d("navigate to details");
+      _onPause();
+      await Navigator.pushNamed(context, "/details");
+      _shouldRunOnResume = true;
+      Fimber.d("back from details");
+    });
   }
 
   bool _shouldRunOnResume = true;
@@ -106,8 +102,6 @@ class DeviceListScreenState extends State<DevicesListScreen> {
     Fimber.d("reassemble");
     super.reassemble();
   }
-
-
 }
 
 class DevicesList extends ListView {
@@ -141,7 +135,8 @@ class DevicesList extends ListView {
         decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
         child: ListTile(
           title: Text(device.name, style: _biggerFont),
-          trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+          trailing:
+              Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
           leading: Container(
             padding: EdgeInsets.only(right: 12.0),
             decoration: new BoxDecoration(
