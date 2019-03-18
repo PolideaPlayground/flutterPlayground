@@ -38,13 +38,25 @@ class DisconnectedBleDevice extends BleDevice {
   DisconnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice)
       : super(name, id, bluetoothDevice, BluetoothDeviceState.disconnected);
 
-  ConnectedBleDevice toConnected(BleDevice bleDevice) {
+  ConnectedBleDevice toConnected() {
     return ConnectedBleDevice.fromDisconnected(this);
   }
 
   @override
   String toString() {
     return 'DisconnectedBleDevice{} ${super.toString()}';
+  }
+
+  ConnectedBleDevice connect() {
+//    TODO
+//    if (bleDevice.bluetoothDeviceState == BluetoothDeviceState.disconnected) {
+//      connectionSubscription = _flutterBlue.connect(bleDevice.bluetoothDevice).listen((connectionState) {
+//        BleDevice newBleDevice = BleDevice.disconnected(bleDevice.name, bleDevice.bluetoothDevice)..bluetoothDeviceState = connectionState;
+//        _deviceController.add(newBleDevice);
+//      });
+//      return;
+//    }
+    return toConnected();
   }
 }
 
@@ -67,6 +79,4 @@ class ConnectedBleDevice extends BleDevice {
     services?.forEach((service) => buffer.write("${service.uuid}\n\n"));
     return buffer.toString();
   }
-
-
 }

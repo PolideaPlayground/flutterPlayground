@@ -56,47 +56,40 @@ void main() {
 
   group("Connection", () {
 
-    setUp(() {
+    DeviceRepository deviceRepository;
+    FlutterBlueMock flutterBlueMock;
+    DisconnectedBleDeviceMock disconnectedBleDevice;
+    DeviceDetailsBLoc deviceDetailsBLoc;
 
+    setUp(() {
+      deviceRepository = DeviceRepositoryMock();
+      flutterBlueMock = FlutterBlueMock();
+      disconnectedBleDevice = createDisconnectedBleDeviceMock();
+      when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
+
+      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
     });
 
     test("on startup should connect to the device from repository", () async {
-      //given
-      DeviceRepository deviceRepository = DeviceRepositoryMock();
-      FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-      BleDevice disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
-
-      when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
-
       when(flutterBlueMock.connect(any)).thenAnswer((_) => Observable.never());
 
       //when
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
       deviceDetailsBLoc.init();
 
       //then
-      await untilCalled(flutterBlueMock.connect(argThat(equals(disconnectedBleDevice.bluetoothDevice))));
+      await untilCalled(disconnectedBleDevice.connect());
+//      await untilCalled(flutterBlueMock.connect(argThat(equals(disconnectedBleDevice.bluetoothDevice))));
     });
 
     test("should disconnect when backing to the list", () async {
       //given
-      DeviceRepository deviceRepository = DeviceRepositoryMock();
-      FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-      BleDevice disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
-
-
-      when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
-
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
-
       StreamMock<BluetoothDeviceState> streamMock = StreamMock<BluetoothDeviceState>();
       StreamSubscriptionMock<BluetoothDeviceState> subscriptionMock = StreamSubscriptionMock<BluetoothDeviceState>();
 
       when(streamMock.listen(any)).thenAnswer((_) => subscriptionMock);
       when(flutterBlueMock.connect(any)).thenAnswer((_) => streamMock);
 
-      deviceDetailsBLoc.init();
-      await untilCalled(flutterBlueMock.connect(any));
+      await waitForInitCompletion(deviceDetailsBLoc, flutterBlueMock);
 
       //when
       deviceDetailsBLoc.dispose();
@@ -110,7 +103,21 @@ void main() {
 
   group("Temperature sensor", () {
 
-    test("should not emit value until collect result from a device", () {
+    DeviceRepository deviceRepository;
+    FlutterBlueMock flutterBlueMock;
+    BleDevice disconnectedBleDevice;
+    DeviceDetailsBLoc deviceDetailsBLoc;
+
+    setUp(() {
+      deviceRepository = DeviceRepositoryMock();
+      flutterBlueMock = FlutterBlueMock();
+      disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
+      when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
+
+      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
+    });
+
+    test("should turn on temperature sensor", () {
       //given
       DeviceRepository deviceRepository = DeviceRepositoryMock();
       BleDevice connectedBleDevice = BleDevice.connected("test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
@@ -118,12 +125,20 @@ void main() {
       //when
 
       //then
-      expect(1,3);
+      expectLater(deviceDetailsBLoc.device, emitsInOrder([
+        equals(disconnectedBleDevice),
+        equals(connectedBleDevice),
+      ]));
     });
 
   });
 
 
+}
+
+Future waitForInitCompletion(DeviceDetailsBLoc deviceDetailsBLoc, FlutterBlueMock flutterBlueMock) async {
+  deviceDetailsBLoc.init();
+  await untilCalled(flutterBlueMock.connect(any));
 }
 
 class BleDevicesMatcher extends Matcher {
