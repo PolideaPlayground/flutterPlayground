@@ -31,6 +31,7 @@ void main() {
     //when
     devicesBloc.devicePicker.add(bleDevice);
 
+    //then
     await untilCalled(deviceRepositoryMock.pickDevice(argThat(equals(bleDevice))));
   });
 

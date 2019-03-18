@@ -9,6 +9,7 @@ class DeviceDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(FlutterBlue.instance, DeviceRepository());
+    deviceDetailsBLoc.init();
     return  Scaffold(
       appBar: AppBar(
         title: Text("Details"),
