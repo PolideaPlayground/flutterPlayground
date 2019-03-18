@@ -11,9 +11,7 @@ typedef DeviceTapListener = void Function();
 
 class DevicesListScreen extends StatefulWidget {
   @override
-  State<DevicesListScreen> createState() {
-    return DeviceListScreenState();
-  }
+  State<DevicesListScreen> createState() => DeviceListScreenState();
 }
 
 class DeviceListScreenState extends State<DevicesListScreen> {
