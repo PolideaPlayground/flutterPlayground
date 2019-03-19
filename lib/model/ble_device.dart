@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -16,8 +18,8 @@ class BleDevice {
     return ConnectedBleDevice(name, bluetoothDevice.id, bluetoothDevice);
   }
 
-  factory BleDevice.disconnected(String name, BluetoothDevice bluetoothDevice) {
-    return DisconnectedBleDevice(name, bluetoothDevice.id, bluetoothDevice);
+  factory BleDevice.disconnected(String name, BluetoothDevice bluetoothDevice, FlutterBlue flutterBlue) {
+    return DisconnectedBleDevice(name, bluetoothDevice.id, bluetoothDevice, flutterBlue);
   }
 
   @override
@@ -35,7 +37,12 @@ class BleDevice {
 }
 
 class DisconnectedBleDevice extends BleDevice {
-  DisconnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice)
+
+  FlutterBlue _flutterBlue;
+  StreamSubscription<BluetoothDeviceState> _connectionSubscription;
+  StreamController<BleDevice> _devicesInConnectingProcess;
+
+  DisconnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice, this._flutterBlue)
       : super(name, id, bluetoothDevice, BluetoothDeviceState.disconnected);
 
   ConnectedBleDevice toConnected() {
@@ -47,16 +54,26 @@ class DisconnectedBleDevice extends BleDevice {
     return 'DisconnectedBleDevice{} ${super.toString()}';
   }
 
-  ConnectedBleDevice connect() {
-//    TODO
-//    if (bleDevice.bluetoothDeviceState == BluetoothDeviceState.disconnected) {
-//      connectionSubscription = _flutterBlue.connect(bleDevice.bluetoothDevice).listen((connectionState) {
-//        BleDevice newBleDevice = BleDevice.disconnected(bleDevice.name, bleDevice.bluetoothDevice)..bluetoothDeviceState = connectionState;
-//        _deviceController.add(newBleDevice);
-//      });
-//      return;
-//    }
-    return toConnected();
+  Stream<BleDevice> connect() {
+    _devicesInConnectingProcess?.close();
+    _devicesInConnectingProcess = StreamController<BleDevice>();
+    _connectionSubscription = _flutterBlue.connect(bluetoothDevice).listen((connectionState) {
+      if(connectionState == BluetoothDeviceState.connecting) {
+        BleDevice newBleDevice = BleDevice.disconnected(name, bluetoothDevice, _flutterBlue)..bluetoothDeviceState = connectionState;
+        _devicesInConnectingProcess.add(newBleDevice);
+      }
+
+      if (connectionState == BluetoothDeviceState.connected) {
+        _devicesInConnectingProcess.add(toConnected());
+        _devicesInConnectingProcess.close();
+      }
+    });
+    return _devicesInConnectingProcess.stream;
+  }
+
+  void abandon() {
+    _connectionSubscription?.cancel();
+    _devicesInConnectingProcess?.close();
   }
 }
 

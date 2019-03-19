@@ -35,7 +35,7 @@ void main() {
     //given
     DeviceRepository deviceRepository = DeviceRepositoryMock();
     FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    BleDevice disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
+    BleDevice disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")), flutterBlueMock);
     BleDevice connectedBleDevice = BleDevice.connected("test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
 
     when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
@@ -85,7 +85,7 @@ void main() {
     test("should disconnect when backing to the list", () async {
       //given
       var connectedBleDevice = createConnectedBleDeviceMock();
-      when(disconnectedBleDevice.connect()).thenReturn(connectedBleDevice);
+      when(disconnectedBleDevice.connect()).thenAnswer((_) => Stream.fromIterable([connectedBleDevice]));
 
       await initBlocAndWaitForCompletion(deviceDetailsBLoc, disconnectedBleDevice);
 
@@ -127,7 +127,7 @@ void main() {
     setUp(() {
       deviceRepository = DeviceRepositoryMock();
       flutterBlueMock = FlutterBlueMock();
-      disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
+      disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")), flutterBlueMock);
       when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
 
       deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);

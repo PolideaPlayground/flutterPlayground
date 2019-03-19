@@ -1,6 +1,7 @@
 
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:mockito/mockito.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:wear_hint/repository/device_repository.dart';
 
@@ -21,6 +22,7 @@ ConnectedBleDeviceMock createConnectedBleDeviceMock() {
 DisconnectedBleDeviceMock createDisconnectedBleDeviceMock(ConnectedBleDeviceMock connectedBleDevice) {
   var bleDevice = DisconnectedBleDeviceMock();
   when(bleDevice.bluetoothDeviceState).thenReturn(BluetoothDeviceState.disconnected);
-  when(bleDevice.connect()).thenReturn(connectedBleDevice);
+  //TODO update sdk
+  when(bleDevice.connect()).thenAnswer((_) => Stream.fromIterable([connectedBleDevice]));
   return bleDevice;
 }

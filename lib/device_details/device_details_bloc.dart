@@ -20,7 +20,7 @@ class DeviceDetailsBLoc {
 
   StreamSubscription connectionSubscription;
 
-  ConnectedBleDevice _connectedBleDevice;
+  Stream<BleDevice> _devicesInConnectingProcess;
 
   DeviceDetailsBLoc(this._flutterBlue, this._deviceRepository){
     _flutterBlue.setLogLevel(LogLevel.error);
@@ -40,8 +40,9 @@ class DeviceDetailsBLoc {
 //          _deviceController.add(newBleDevice);
 //        });
 
-        _connectedBleDevice = (bleDevice as DisconnectedBleDevice).connect();
-        _deviceController.add(_connectedBleDevice);
+        _devicesInConnectingProcess = (bleDevice as DisconnectedBleDevice).connect();
+//        _deviceController.addStream(_devicesInConnectingProcess);
+        _devicesInConnectingProcess.pipe(_deviceController);
           return;
       }
 
@@ -142,8 +143,8 @@ class DeviceDetailsBLoc {
   }
 
   void dispose() {
-    _connectedBleDevice?.disconnect();
-    _connectedBleDevice = null;
+//    _devicesInConnectingProcess?.();
+//    _devicesInConnectingProcess = null;
     _deviceController.close();
   }
 
