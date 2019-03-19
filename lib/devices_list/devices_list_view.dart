@@ -66,9 +66,9 @@ class DeviceListScreenState extends State<DevicesListScreen> {
       _onResume();
     }
     return Scaffold(
-      backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
       appBar: AppBar(
-        title: Text('BLE devices'),
+        title: Text('Bluetooth devices'),
+        backgroundColor: Colors.blue,
       ),
       body: StreamBuilder<List<BleDevice>>(
         initialData: _devicesBloc.visibleDevices.value,
@@ -100,12 +100,9 @@ class DeviceListScreenState extends State<DevicesListScreen> {
 }
 
 class DevicesList extends ListView {
-  static final _biggerFont = const TextStyle(fontSize: 18.0);
-
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.builder(
-            padding: const EdgeInsets.all(16.0),
-//            shrinkWrap: true,
+            // padding: const EdgeInsets.all(16.0),
             itemCount: devices.length,
             itemBuilder: (context, i) {
               Fimber.d("Build row for $i");
@@ -123,25 +120,34 @@ class DevicesList extends ListView {
 
   static Widget _buildRow(
       BleDevice device, DeviceTapListener deviceTapListener) {
-    return Card(
-      elevation: 8.0,
-      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-      child: Container(
-        decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-        child: ListTile(
-          title: Text(device.name, style: _biggerFont),
-          trailing:
-              Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
-          leading: Container(
-            padding: EdgeInsets.only(right: 12.0),
-            decoration: new BoxDecoration(
-                border: new Border(
-                    right: new BorderSide(width: 1.0, color: Colors.white24))),
-            child: Icon(Icons.autorenew, color: Colors.white),
-          ),
-          onTap: deviceTapListener,
-        ),
-      ),
+    var isSensorTag = device.name == "SensorTag";
+    return ListTile(
+      leading: CircleAvatar(
+          child: Icon(isSensorTag ? Icons.adjust : Icons.bluetooth),
+          backgroundColor: isSensorTag ? Colors.red : Colors.blue,
+          foregroundColor: Colors.white),
+      title: Text(device.name),
+      subtitle: Text(device.id.toString()),
     );
+    // return Card(
+    //   elevation: 8.0,
+    //   margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+    //   child: Container(
+    //     decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
+    //     child: ListTile(
+    //       title: Text(device.name, style: _biggerFont),
+    //       trailing:
+    //           Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
+    //       leading: Container(
+    //         padding: EdgeInsets.only(right: 12.0),
+    //         decoration: new BoxDecoration(
+    //             border: new Border(
+    //                 right: new BorderSide(width: 1.0, color: Colors.white24))),
+    //         child: Icon(Icons.autorenew, color: Colors.white),
+    //       ),
+    //       onTap: deviceTapListener,
+    //     ),
+    //   ),
+    // );
   }
 }
