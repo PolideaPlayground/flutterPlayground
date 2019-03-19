@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
 import 'package:wear_hint/model/ble_device.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 typedef DeviceTapListener = void Function();
 
@@ -102,7 +103,7 @@ class DeviceListScreenState extends State<DevicesListScreen> {
 class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.builder(
-            // padding: const EdgeInsets.all(16.0),
+            // separatorBuilder: (context, index) => Divider(color: Colors.grey),
             itemCount: devices.length,
             itemBuilder: (context, i) {
               Fimber.d("Build row for $i");
@@ -118,6 +119,19 @@ class DevicesList extends ListView {
     };
   }
 
+  static String _bluetoothDeviceTypeToString(BluetoothDeviceType type) {
+    switch (type) {
+      case BluetoothDeviceType.classic:
+        return "Classic";
+      case BluetoothDeviceType.dual:
+        return "Dual-Mode";
+      case BluetoothDeviceType.le:
+        return "Low Energy";
+      default:
+        return "Unknown";
+    }
+  }
+
   static Widget _buildRow(
       BleDevice device, DeviceTapListener deviceTapListener) {
     var isSensorTag = device.name == "SensorTag";
@@ -127,7 +141,12 @@ class DevicesList extends ListView {
           backgroundColor: isSensorTag ? Colors.red : Colors.blue,
           foregroundColor: Colors.white),
       title: Text(device.name),
-      subtitle: Text(device.id.toString()),
+      trailing: Icon(Icons.chevron_right, color: Colors.grey),
+      subtitle: Text(device.id.toString() +
+          "\n" +
+          _bluetoothDeviceTypeToString(device.bluetoothDevice.type)),
+      onTap: deviceTapListener,
+      isThreeLine: true,
     );
     // return Card(
     //   elevation: 8.0,
