@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-class BleDevice {
+abstract class BleDevice {
   int counter = 0;
   final String name;
   final DeviceIdentifier id;
@@ -33,6 +33,8 @@ class BleDevice {
   String toString() {
     return 'BleDevice{counter: $counter, name: $name, id: $id, bluetoothDevice: $bluetoothDevice, bluetoothDeviceState: $bluetoothDeviceState}';
   }
+
+  void abandon();
 
 }
 
@@ -89,7 +91,7 @@ class ConnectedBleDevice extends BleDevice {
       : super(disconnectedBleDevice.name, disconnectedBleDevice.id,
         disconnectedBleDevice.bluetoothDevice, BluetoothDeviceState.connected);
 
-  void disconnect() {
+  void abandon() {
     _connectionSubscription?.cancel();
   }
 

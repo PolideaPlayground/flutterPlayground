@@ -62,7 +62,7 @@ class DevicesBloc {
 
     _scanSubscription = _flutterBlue.scan().listen((ScanResult scanResult) {
       var bleDevice = BleDevice.disconnected(
-          scanResult.advertisementData.localName, scanResult.device);
+          scanResult.advertisementData.localName, scanResult.device, _flutterBlue);
       if (scanResult.advertisementData.localName.isNotEmpty &&
           !bleDevices.contains(bleDevice)) {
         Fimber.d(

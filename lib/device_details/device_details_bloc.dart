@@ -35,15 +35,9 @@ class DeviceDetailsBLoc {
     _deviceController.stream.listen((bleDevice) {
 
       if (bleDevice.bluetoothDeviceState == BluetoothDeviceState.disconnected) {
-//        connectionSubscription = _flutterBlue.connect(bleDevice.bluetoothDevice).listen((connectionState) {
-//          BleDevice newBleDevice = BleDevice.disconnected(bleDevice.name, bleDevice.bluetoothDevice)..bluetoothDeviceState = connectionState;
-//          _deviceController.add(newBleDevice);
-//        });
-
         _devicesInConnectingProcess = (bleDevice as DisconnectedBleDevice).connect();
-//        _deviceController.addStream(_devicesInConnectingProcess);
         _devicesInConnectingProcess.pipe(_deviceController);
-          return;
+        return;
       }
 
 //      if(bleDevice.bluetoothDeviceState == BluetoothDeviceState.connected && bleDevice is DisconnectedBleDevice) {
@@ -142,9 +136,10 @@ class DeviceDetailsBLoc {
 
   }
 
-  void dispose() {
-//    _devicesInConnectingProcess?.();
-//    _devicesInConnectingProcess = null;
+  void dispose() async {
+    _deviceController.value?.abandon();
+//    _devicesInConnectingProcess.
+    await _deviceController.drain();
     _deviceController.close();
   }
 

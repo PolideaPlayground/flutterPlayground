@@ -8,6 +8,7 @@ import 'package:wear_hint/device_details/device_details_bloc.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:wear_hint/repository/device_repository.dart';
 
+import '../factory/factory.dart';
 import '../mocks/mocks.dart';
 
 
@@ -16,42 +17,51 @@ class StreamMock<T> extends Mock implements Stream<T> {}
 class StreamSubscriptionMock<T> extends Mock implements StreamSubscription<T> {}
 
 void main() {
-  test('should emit picked device on startup', () {
-    //given
-    DeviceRepository deviceRepository = DeviceRepositoryMock();
-    BleDevice bleDevice = BleDevice("test", DeviceIdentifier("testId"),
-        BluetoothDeviceMock(), BluetoothDeviceState.connecting);
 
-    when(deviceRepository.pickedDevice).thenReturn(bleDevice);
+  group("Emiting devices ", () {
+    test('should emit picked device on startup', () {
+      //given
+      DeviceRepository deviceRepository = DeviceRepositoryMock();
+      BleDevice bleDevice = BleDeviceFactory.buildDisconnected();
 
-    //when
-    DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(FlutterBlueMock(), deviceRepository);
+      when(deviceRepository.pickedDevice).thenReturn(bleDevice);
 
-    //then
-    expect(deviceDetailsBLoc.device.value, equals(bleDevice));
-  });
+      //when
+      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(
+          FlutterBlueMock(), deviceRepository);
 
-  test('should emit device from the lib', () {
-    //given
-    DeviceRepository deviceRepository = DeviceRepositoryMock();
-    FlutterBlueMock flutterBlueMock = FlutterBlueMock();
-    BleDevice disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")), flutterBlueMock);
-    BleDevice connectedBleDevice = BleDevice.connected("test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
+      //then
+      expect(deviceDetailsBLoc.device.value, predicate((BleDevice device) => device.name == bleDevice.name));
+    });
 
-    when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
-    when(flutterBlueMock.connect(any)).thenAnswer((_) => BehaviorSubject<BluetoothDeviceState>(seedValue: BluetoothDeviceState.connected));
+    test('should emit device from the lib', () {
+      //given
+      DeviceRepository deviceRepository = DeviceRepositoryMock();
+      FlutterBlueMock flutterBlueMock = FlutterBlueMock();
+      BleDevice disconnectedBleDevice = BleDevice.disconnected(
+          "test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")),
+          flutterBlueMock);
 
-    //when
-    DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
+      when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
+      when(flutterBlueMock.connect(any)).thenAnswer((_) =>
+          Stream.fromIterable(
+              [BluetoothDeviceState.connecting, BluetoothDeviceState.connected
+              ]));
 
-    //then
-    expectLater(deviceDetailsBLoc.device, emitsInOrder([
-      equals(disconnectedBleDevice),
-      equals(connectedBleDevice),
-    ]));
+      //when
+      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(
+          flutterBlueMock, deviceRepository);
 
-    //when part 2
-    deviceDetailsBLoc.init();
+      //then
+      expectLater(deviceDetailsBLoc.device, emitsInOrder([
+        predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.disconnected),
+        predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.connecting),
+        predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.connected),
+      ]));
+
+      //when part 2
+      deviceDetailsBLoc.init();
+    });
   });
 
   group("Connection", () {
@@ -79,7 +89,6 @@ void main() {
 
       //then
       await untilCalled(disconnectedBleDevice.connect());
-//      await untilCalled(flutterBlueMock.connect(argThat(equals(disconnectedBleDevice.bluetoothDevice))));
     });
 
     test("should disconnect when backing to the list", () async {
@@ -93,29 +102,10 @@ void main() {
       deviceDetailsBLoc.dispose();
 
       //then
-      await untilCalled(connectedBleDevice.disconnect());
+      await untilCalled(connectedBleDevice.abandon());
     });
 
   });
-
-  //TEST DISCONNECTA NA BILBIOTECE
-//  test("should disconnect when backing to the list", () async {
-//    //given
-//    StreamMock<BluetoothDeviceState> streamMock = StreamMock<BluetoothDeviceState>();
-//    StreamSubscriptionMock<BluetoothDeviceState> subscriptionMock = StreamSubscriptionMock<BluetoothDeviceState>();
-//
-//    when(streamMock.listen(any)).thenAnswer((_) => subscriptionMock);
-//    when(flutterBlueMock.connect(any)).thenAnswer((_) => streamMock);
-//
-//    await waitForInitCompletion(deviceDetailsBLoc, flutterBlueMock);
-//
-//    //when
-//    deviceDetailsBLoc.dispose();
-//
-//    //then
-//    await untilCalled(subscriptionMock.cancel());
-//  });
-
 
   group("Temperature sensor", () {
 

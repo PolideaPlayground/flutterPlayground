@@ -28,7 +28,7 @@ void main() {
     connectedBleDevice = ConnectedBleDevice.fromDisconnected(BleDeviceFactory.buildDisconnected(flutterBlue: flutterBlueMock), connectionSubscription);
 
     //when
-    connectedBleDevice.disconnect();
+    connectedBleDevice.abandon();
 
     //then
     await untilCalled(connectionSubscription.cancel());
