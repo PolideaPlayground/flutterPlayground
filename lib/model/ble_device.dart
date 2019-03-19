@@ -46,7 +46,7 @@ class DisconnectedBleDevice extends BleDevice {
       : super(name, id, bluetoothDevice, BluetoothDeviceState.disconnected);
 
   ConnectedBleDevice toConnected() {
-    return ConnectedBleDevice.fromDisconnected(this);
+    return ConnectedBleDevice.fromDisconnected(this, _connectionSubscription);
   }
 
   @override
@@ -80,16 +80,17 @@ class DisconnectedBleDevice extends BleDevice {
 class ConnectedBleDevice extends BleDevice {
 
   List<BluetoothService> services;
+  StreamSubscription<BluetoothDeviceState> _connectionSubscription;
 
   ConnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice)
       : super(name, id, bluetoothDevice, BluetoothDeviceState.connected);
 
-  ConnectedBleDevice.fromDisconnected(DisconnectedBleDevice disconnectedBleDevice)
+  ConnectedBleDevice.fromDisconnected(DisconnectedBleDevice disconnectedBleDevice, this._connectionSubscription)
       : super(disconnectedBleDevice.name, disconnectedBleDevice.id,
         disconnectedBleDevice.bluetoothDevice, BluetoothDeviceState.connected);
 
   void disconnect() {
-
+    _connectionSubscription?.cancel();
   }
 
   @override
