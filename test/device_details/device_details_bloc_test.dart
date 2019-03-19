@@ -64,7 +64,8 @@ void main() {
     setUp(() {
       deviceRepository = DeviceRepositoryMock();
       flutterBlueMock = FlutterBlueMock();
-      disconnectedBleDevice = createDisconnectedBleDeviceMock();
+      disconnectedBleDevice = createDisconnectedBleDeviceMock(createConnectedBleDeviceMock());
+//      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
       when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
 
       deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
@@ -83,22 +84,37 @@ void main() {
 
     test("should disconnect when backing to the list", () async {
       //given
-      StreamMock<BluetoothDeviceState> streamMock = StreamMock<BluetoothDeviceState>();
-      StreamSubscriptionMock<BluetoothDeviceState> subscriptionMock = StreamSubscriptionMock<BluetoothDeviceState>();
+      var connectedBleDevice = createConnectedBleDeviceMock();
+      when(disconnectedBleDevice.connect()).thenReturn(connectedBleDevice);
 
-      when(streamMock.listen(any)).thenAnswer((_) => subscriptionMock);
-      when(flutterBlueMock.connect(any)).thenAnswer((_) => streamMock);
-
-      await waitForInitCompletion(deviceDetailsBLoc, flutterBlueMock);
+      await initBlocAndWaitForCompletion(deviceDetailsBLoc, disconnectedBleDevice);
 
       //when
       deviceDetailsBLoc.dispose();
 
       //then
-      await untilCalled(subscriptionMock.cancel());
+      await untilCalled(connectedBleDevice.disconnect());
     });
 
   });
+
+  //TEST DISCONNECTA NA BILBIOTECE
+//  test("should disconnect when backing to the list", () async {
+//    //given
+//    StreamMock<BluetoothDeviceState> streamMock = StreamMock<BluetoothDeviceState>();
+//    StreamSubscriptionMock<BluetoothDeviceState> subscriptionMock = StreamSubscriptionMock<BluetoothDeviceState>();
+//
+//    when(streamMock.listen(any)).thenAnswer((_) => subscriptionMock);
+//    when(flutterBlueMock.connect(any)).thenAnswer((_) => streamMock);
+//
+//    await waitForInitCompletion(deviceDetailsBLoc, flutterBlueMock);
+//
+//    //when
+//    deviceDetailsBLoc.dispose();
+//
+//    //then
+//    await untilCalled(subscriptionMock.cancel());
+//  });
 
 
   group("Temperature sensor", () {
@@ -136,9 +152,9 @@ void main() {
 
 }
 
-Future waitForInitCompletion(DeviceDetailsBLoc deviceDetailsBLoc, FlutterBlueMock flutterBlueMock) async {
+Future initBlocAndWaitForCompletion(DeviceDetailsBLoc deviceDetailsBLoc, DisconnectedBleDeviceMock disconnectedBleDeviceMock) async {
   deviceDetailsBLoc.init();
-  await untilCalled(flutterBlueMock.connect(any));
+  await untilCalled(disconnectedBleDeviceMock.connect());
 }
 
 class BleDevicesMatcher extends Matcher {

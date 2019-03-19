@@ -20,6 +20,8 @@ class DeviceDetailsBLoc {
 
   StreamSubscription connectionSubscription;
 
+  ConnectedBleDevice _connectedBleDevice;
+
   DeviceDetailsBLoc(this._flutterBlue, this._deviceRepository){
     _flutterBlue.setLogLevel(LogLevel.error);
 
@@ -38,7 +40,8 @@ class DeviceDetailsBLoc {
 //          _deviceController.add(newBleDevice);
 //        });
 
-        _deviceController.add((bleDevice as DisconnectedBleDevice).connect());
+        _connectedBleDevice = (bleDevice as DisconnectedBleDevice).connect();
+        _deviceController.add(_connectedBleDevice);
           return;
       }
 
@@ -139,8 +142,9 @@ class DeviceDetailsBLoc {
   }
 
   void dispose() {
+    _connectedBleDevice?.disconnect();
+    _connectedBleDevice = null;
     _deviceController.close();
-    connectionSubscription.cancel();
   }
 
 }

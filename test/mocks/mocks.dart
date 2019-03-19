@@ -18,10 +18,9 @@ ConnectedBleDeviceMock createConnectedBleDeviceMock() {
   return bleDevice;
 }
 
-DisconnectedBleDeviceMock createDisconnectedBleDeviceMock() {
+DisconnectedBleDeviceMock createDisconnectedBleDeviceMock(ConnectedBleDeviceMock connectedBleDevice) {
   var bleDevice = DisconnectedBleDeviceMock();
   when(bleDevice.bluetoothDeviceState).thenReturn(BluetoothDeviceState.disconnected);
-  var connectedBleDevice = createConnectedBleDeviceMock();
   when(bleDevice.connect()).thenReturn(connectedBleDevice);
   return bleDevice;
 }

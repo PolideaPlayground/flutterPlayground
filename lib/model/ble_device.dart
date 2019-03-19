@@ -71,6 +71,10 @@ class ConnectedBleDevice extends BleDevice {
       : super(disconnectedBleDevice.name, disconnectedBleDevice.id,
         disconnectedBleDevice.bluetoothDevice, BluetoothDeviceState.connected);
 
+  void disconnect() {
+
+  }
+
   @override
   String toString() {
     var buffer = StringBuffer();
