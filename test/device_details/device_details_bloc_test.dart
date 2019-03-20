@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 import 'package:wear_hint/device_details/device_details_bloc.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:wear_hint/repository/device_repository.dart';
+import 'package:wear_hint/sensor_tag/sensor_tag.dart';
 
 import '../factory/factory.dart';
 import '../mocks/mocks.dart';
@@ -16,12 +17,24 @@ class ObservableMock extends Mock implements Observable {}
 class StreamMock<T> extends Mock implements Stream<T> {}
 class StreamSubscriptionMock<T> extends Mock implements StreamSubscription<T> {}
 
+class SensorTagFactoryMock extends Mock implements SensorTagFactory {}
+class SensorTagMock extends Mock implements SensorTag {}
+
 void main() {
+
+  SensorTagFactoryMock sensorTagFactory;
+  FlutterBlueMock flutterBlueMock;
+  DeviceRepository deviceRepository;
+
+  setUp(() {
+    sensorTagFactory = SensorTagFactoryMock();
+    flutterBlueMock = FlutterBlueMock();
+    deviceRepository = DeviceRepositoryMock();
+  });
 
   group("Emiting devices ", () {
     test('should emit picked device on startup', () {
       //given
-      DeviceRepository deviceRepository = DeviceRepositoryMock();
       BleDevice bleDevice = BleDeviceFactory.buildDisconnected();
 
       when(deviceRepository.pickedDevice).thenReturn(bleDevice);
@@ -36,7 +49,6 @@ void main() {
 
     test('should emit device from the lib', () {
       //given
-      DeviceRepository deviceRepository = DeviceRepositoryMock();
       FlutterBlueMock flutterBlueMock = FlutterBlueMock();
       BleDevice disconnectedBleDevice = BleDevice.disconnected(
           "test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")),
@@ -47,10 +59,11 @@ void main() {
           Stream.fromIterable(
               [BluetoothDeviceState.connecting, BluetoothDeviceState.connected
               ]));
+      when(sensorTagFactory.create(any)).thenReturn(SensorTagMock());
 
       //when
       DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(
-          flutterBlueMock, deviceRepository);
+          flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
 
       //then
       expectLater(deviceDetailsBLoc.device, emitsInOrder([
@@ -66,22 +79,19 @@ void main() {
 
   group("Connection", () {
 
-    DeviceRepository deviceRepository;
-    FlutterBlueMock flutterBlueMock;
     DisconnectedBleDeviceMock disconnectedBleDevice;
     DeviceDetailsBLoc deviceDetailsBLoc;
 
     setUp(() {
-      deviceRepository = DeviceRepositoryMock();
-      flutterBlueMock = FlutterBlueMock();
       disconnectedBleDevice = createDisconnectedBleDeviceMock(createConnectedBleDeviceMock());
-//      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
       when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
+      when(sensorTagFactory.create(any)).thenReturn(SensorTagMock());
 
-      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
+      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
     });
 
     test("on startup should connect to the device from repository", () async {
+      //given
       when(flutterBlueMock.connect(any)).thenAnswer((_) => Observable.never());
 
       //when
@@ -107,39 +117,43 @@ void main() {
 
   });
 
-  group("Temperature sensor", () {
+  group("Sensor tag", () {
 
-    DeviceRepository deviceRepository;
-    FlutterBlueMock flutterBlueMock;
-    BleDevice disconnectedBleDevice;
-    DeviceDetailsBLoc deviceDetailsBLoc;
+    SensorTagMock sensorTag;
 
     setUp(() {
-      deviceRepository = DeviceRepositoryMock();
-      flutterBlueMock = FlutterBlueMock();
-      disconnectedBleDevice = BleDevice.disconnected("test",  BluetoothDevice(name: "test", id: DeviceIdentifier("testId")), flutterBlueMock);
+      sensorTag = SensorTagMock();
+      when(sensorTagFactory.create(any)).thenReturn(sensorTag);
+      when(flutterBlueMock.connect(any)).thenAnswer((_) => Stream.fromIterable([BluetoothDeviceState.connected]));
+      DisconnectedBleDevice disconnectedBleDevice = createDisconnectedBleDeviceMock(createConnectedBleDeviceMock());
       when(deviceRepository.pickedDevice).thenReturn(disconnectedBleDevice);
-
-      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository);
     });
 
-    test("should turn on temperature sensor", () {
+    test("should turn sensors on", () async {
       //given
-      DeviceRepository deviceRepository = DeviceRepositoryMock();
-      BleDevice connectedBleDevice = BleDevice.connected("test", BluetoothDevice(name: "test", id: DeviceIdentifier("testId")));
-      FlutterBlueMock flutterBlueMock = FlutterBlueMock();
+      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
+
       //when
+      deviceDetailsBLoc.init();
 
       //then
-      expectLater(deviceDetailsBLoc.device, emitsInOrder([
-        equals(disconnectedBleDevice),
-        equals(connectedBleDevice),
-      ]));
+      await untilCalled(sensorTag.initAllSensors());
+    });
+
+    test("should listen ambient temperature", () async {
+      //given
+      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
+      when(sensorTag.ambientTemperature).thenAnswer((_) => Observable.fromIterable([12.4,37.5,89.9]).shareValue());
+
+      //when
+      deviceDetailsBLoc.init();
+      await untilCalled(sensorTag.initAllSensors());
+
+      //then
+      expectLater(deviceDetailsBLoc.ambientTemperature, emitsInOrder([equals(12.4), equals(37.5), equals(89.9)]));
     });
 
   });
-
-
 }
 
 Future initBlocAndWaitForCompletion(DeviceDetailsBLoc deviceDetailsBLoc, DisconnectedBleDeviceMock disconnectedBleDeviceMock) async {

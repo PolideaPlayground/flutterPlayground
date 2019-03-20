@@ -19,7 +19,19 @@ class DeviceDetailsView extends StatelessWidget {
         stream: deviceDetailsBLoc.device,
         builder: (context, snapshot) =>
             Center(
-            child: Text(snapshot.data.toString()),
+            child: Column(
+              children: <Widget>[
+                Text(snapshot.data.toString()),
+                StreamBuilder<double>(
+                  initialData: deviceDetailsBLoc.ambientTemperature.value,
+                  stream: deviceDetailsBLoc.ambientTemperature,
+                  builder: (context, snapshot) =>
+                    Center(
+                      child: Text("Temperature:  ${snapshot.data}"),
+                    ),
+                ),
+              ],
+            ),
           )
       )
     );

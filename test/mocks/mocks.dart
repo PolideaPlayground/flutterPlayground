@@ -9,6 +9,7 @@ class FlutterBlueMock extends Mock implements FlutterBlue {}
 class DeviceRepositoryMock extends Mock implements DeviceRepository {}
 class BluetoothDeviceMock extends Mock implements BluetoothDevice {}
 
+
 class DisconnectedBleDeviceMock extends Mock implements DisconnectedBleDevice {}
 class ConnectedBleDeviceMock extends Mock implements ConnectedBleDevice {}
 
