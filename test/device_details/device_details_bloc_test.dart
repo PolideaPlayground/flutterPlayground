@@ -45,11 +45,11 @@ void main() {
       when(deviceRepository.pickedDevice).thenAnswer((_) => BehaviorSubject(seedValue: bleDevice));
 
       //when
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(
+      DeviceDetailsBloc deviceDetailsBloc = DeviceDetailsBloc(
           FlutterBlueMock(), deviceRepository);
 
       //then
-      expect(deviceDetailsBLoc.device.value, predicate((BleDevice device) => device.name == bleDevice.name));
+      expect(deviceDetailsBloc.device.value, predicate((BleDevice device) => device.name == bleDevice.name));
     });
 
     test('should emit device from the lib', () {
@@ -66,31 +66,31 @@ void main() {
               ]));
 
       //when
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(
+      DeviceDetailsBloc deviceDetailsBloc = DeviceDetailsBloc(
           flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
 
       //then
-      expectLater(deviceDetailsBLoc.device, emitsInOrder([
+      expectLater(deviceDetailsBloc.device, emitsInOrder([
         predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.disconnected),
         predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.connecting),
         predicate((BleDevice device) => device.bluetoothDeviceState == BluetoothDeviceState.connected),
       ]));
 
       //when part 2
-      deviceDetailsBLoc.init();
+      deviceDetailsBloc.init();
     });
   });
 
   group("Connection", () {
 
     DisconnectedBleDeviceMock disconnectedBleDevice;
-    DeviceDetailsBLoc deviceDetailsBLoc;
+    DeviceDetailsBloc deviceDetailsBloc;
 
     setUp(() {
       disconnectedBleDevice = createDisconnectedBleDeviceMock(createConnectedBleDeviceMock());
       when(deviceRepository.pickedDevice).thenAnswer((_) => BehaviorSubject(seedValue: disconnectedBleDevice));
 
-      deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
+      deviceDetailsBloc = DeviceDetailsBloc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
     });
 
     test("on startup should connect to the device from repository", () async {
@@ -98,7 +98,7 @@ void main() {
       when(flutterBlueMock.connect(any)).thenAnswer((_) => Observable.never());
 
       //when
-      deviceDetailsBLoc.init();
+      deviceDetailsBloc.init();
 
       //then
       await untilCalled(disconnectedBleDevice.connect());
@@ -109,10 +109,10 @@ void main() {
       var connectedBleDevice = createConnectedBleDeviceMock();
       when(disconnectedBleDevice.connect()).thenAnswer((_) => Stream.fromIterable([connectedBleDevice]));
 
-      await initBlocAndWaitForCompletion(deviceDetailsBLoc, disconnectedBleDevice);
+      await initBlocAndWaitForCompletion(deviceDetailsBloc, disconnectedBleDevice);
 
       //when
-      deviceDetailsBLoc.dispose();
+      deviceDetailsBloc.dispose();
 
       //then
       await untilCalled(connectedBleDevice.abandon());
@@ -130,10 +130,10 @@ void main() {
 
     test("should turn sensors on", () async {
       //given
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
+      DeviceDetailsBloc deviceDetailsBloc = DeviceDetailsBloc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
 
       //when
-      deviceDetailsBLoc.init();
+      deviceDetailsBloc.init();
 
       //then
       await untilCalled(sensorTag.initAllSensors());
@@ -141,22 +141,22 @@ void main() {
 
     test("should listen ambient temperature", () async {
       //given
-      DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
+      DeviceDetailsBloc deviceDetailsBloc = DeviceDetailsBloc(flutterBlueMock, deviceRepository, sensorTagFactory: sensorTagFactory);
       when(sensorTag.ambientTemperature).thenAnswer((_) => Observable.fromIterable([12.4,37.5,89.9]).shareValue());
 
       //when
-      deviceDetailsBLoc.init();
+      deviceDetailsBloc.init();
       await untilCalled(sensorTag.initAllSensors());
 
       //then
-      expectLater(deviceDetailsBLoc.ambientTemperature, emitsInOrder([equals(12.4), equals(37.5), equals(89.9)]));
+      expectLater(deviceDetailsBloc.ambientTemperature, emitsInOrder([equals(12.4), equals(37.5), equals(89.9)]));
     });
 
   });
 }
 
-Future initBlocAndWaitForCompletion(DeviceDetailsBLoc deviceDetailsBLoc, DisconnectedBleDeviceMock disconnectedBleDeviceMock) async {
-  deviceDetailsBLoc.init();
+Future initBlocAndWaitForCompletion(DeviceDetailsBloc deviceDetailsBloc, DisconnectedBleDeviceMock disconnectedBleDeviceMock) async {
+  deviceDetailsBloc.init();
   await untilCalled(disconnectedBleDeviceMock.connect());
 }
 

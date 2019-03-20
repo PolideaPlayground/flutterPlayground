@@ -10,7 +10,7 @@ import 'package:wear_hint/sensor_tag/sensor_tag.dart';
 import 'dart:typed_data';
 import 'dart:math';
 
-class DeviceDetailsBLoc {
+class DeviceDetailsBloc {
   final FlutterBlue _flutterBlue;
   final DeviceRepository _deviceRepository;
   final SensorTagFactory _sensorTagFactory;
@@ -27,7 +27,7 @@ class DeviceDetailsBLoc {
   BehaviorSubject<double> _ambientTemperaturSubject = BehaviorSubject();
   ValueObservable<double> get ambientTemperature => _ambientTemperaturSubject.stream;
 
-  DeviceDetailsBLoc(this._flutterBlue, this._deviceRepository, {SensorTagFactory sensorTagFactory})
+  DeviceDetailsBloc(this._flutterBlue, this._deviceRepository, {SensorTagFactory sensorTagFactory})
     : _sensorTagFactory = sensorTagFactory ?? SensorTagFactory() {
 
     _flutterBlue.setLogLevel(LogLevel.error);
