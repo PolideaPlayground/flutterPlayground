@@ -135,19 +135,25 @@ class DevicesList extends ListView {
       DeviceTapListener deviceTapListener) {
     var isSensorTag = device.name == "SensorTag";
     return ListTile(
-      leading: CircleAvatar(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: isSensorTag
-                ? Image.asset('assets/ti_logo.png')
-                : Icon(Icons.bluetooth),
-          ),
-          backgroundColor: isSensorTag
-              ? Theme.of(context).accentColor
-              : Theme.of(context).primaryColor,
-          foregroundColor: Colors.white),
+      leading: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: CircleAvatar(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: isSensorTag
+                  ? Image.asset('assets/ti_logo.png')
+                  : Icon(Icons.bluetooth),
+            ),
+            backgroundColor: isSensorTag
+                ? Theme.of(context).accentColor
+                : Theme.of(context).primaryColor,
+            foregroundColor: Colors.white),
+      ),
       title: Text(device.name),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: Icon(Icons.chevron_right, color: Colors.grey),
+      ),
       subtitle: Column(
         children: <Widget>[
           Text(_bluetoothDeviceTypeToString(device.bluetoothDevice.type),
