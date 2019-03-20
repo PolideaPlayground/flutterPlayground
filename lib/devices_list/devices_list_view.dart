@@ -138,8 +138,12 @@ class _HexPainter extends CustomPainter {
 
 class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
-      : super.builder(
-            // separatorBuilder: (context, index) => Divider(color: Colors.grey),
+      : super.separated(
+            separatorBuilder: (context, index) => Divider(
+                  color: Colors.grey[300],
+                  height: 0,
+                  indent: 0,
+                ),
             itemCount: devices.length,
             itemBuilder: (context, i) {
               Fimber.d("Build row for $i");
@@ -175,18 +179,14 @@ class DevicesList extends ListView {
             padding: const EdgeInsets.all(8.0),
             child: Image.asset('assets/ti_logo.png'),
           ),
-          backgroundColor: Theme.of(context).accentColor,
-          foregroundColor: Colors.white);
+          backgroundColor: Theme.of(context).accentColor);
     } else if (device.name.startsWith("Hex")) {
       return CircleAvatar(
           child: CustomPaint(painter: _HexPainter(), size: Size(20, 24)),
           backgroundColor: Colors.black);
     }
     return CircleAvatar(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(Icons.bluetooth),
-        ),
+        child: Icon(Icons.bluetooth),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white);
   }
