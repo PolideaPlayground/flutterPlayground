@@ -42,8 +42,8 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   void _onResume() {
     Fimber.d("onResume");
     _devicesBloc.init();
-    _appStateSubscription = _devicesBloc.applicationState.listen(
-            (applicationState) async {
+    _appStateSubscription = _devicesBloc.pickedDevice.listen(
+            (bleDevice) async {
               Fimber.d("navigate to details");
           _onPause();
           await Navigator.pushNamed(context, "/details");

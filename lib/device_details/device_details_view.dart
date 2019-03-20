@@ -8,17 +8,30 @@ import 'package:wear_hint/repository/device_repository.dart';
 class DeviceDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    DeviceDetailsBLoc deviceDetailsBLoc = DeviceDetailsBLoc(FlutterBlue.instance, DeviceRepository());
+    DeviceDetailsBloc deviceDetailsBloc = DeviceDetailsBloc(FlutterBlue.instance, DeviceRepository());
+    deviceDetailsBloc.init();
     return  Scaffold(
       appBar: AppBar(
         title: Text("Details"),
       ),
       body: StreamBuilder<BleDevice>(
-        initialData: deviceDetailsBLoc.device.value,
-        stream: deviceDetailsBLoc.device,
+        initialData: deviceDetailsBloc.device.value,
+        stream: deviceDetailsBloc.device,
         builder: (context, snapshot) =>
             Center(
-            child: Text(snapshot.data.toString()),
+            child: Column(
+              children: <Widget>[
+                Text(snapshot.data.toString()),
+                StreamBuilder<double>(
+                  initialData: deviceDetailsBloc.ambientTemperature.value,
+                  stream: deviceDetailsBloc.ambientTemperature,
+                  builder: (context, snapshot) =>
+                    Center(
+                      child: Text("Temperature:  ${snapshot.data}"),
+                    ),
+                ),
+              ],
+            ),
           )
       )
     );

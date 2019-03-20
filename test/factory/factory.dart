@@ -2,6 +2,8 @@
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:wear_hint/model/ble_device.dart';
 
+import '../mocks/mocks.dart';
+
 class ScanResultFactory {
 
   static ScanResult build({BluetoothDevice bluetoothDevice,
@@ -19,10 +21,11 @@ class BluetoothDeviceFactory {
 }
 
 class BleDeviceFactory {
-  static BleDevice buildDisconnected({String name, BluetoothDevice bluetoothDevice}) {
+  static BleDevice buildDisconnected({String name, BluetoothDevice bluetoothDevice, FlutterBlue flutterBlue}) {
     return BleDevice.disconnected(
         bluetoothDevice?.name ?? "test",
-        bluetoothDevice ?? BluetoothDeviceFactory.build()
+        bluetoothDevice ?? BluetoothDeviceFactory.build(),
+        flutterBlue ?? FlutterBlueMock()
     );
   }
 }
