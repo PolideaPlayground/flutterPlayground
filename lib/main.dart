@@ -8,11 +8,11 @@ import 'package:wear_hint/nick/favourites/favourites_nicks_list.dart';
 import 'package:wear_hint/nick/nick_provider.dart';
 import 'package:fimber/fimber.dart';
 
-
 void main() {
   Fimber.plantTree(DebugTree());
   runApp(MyApp());
 }
+
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class MyApp extends StatelessWidget {
@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Weather station',
         theme: new ThemeData(
-            primaryColor: Color.fromRGBO(58, 66, 86, 1.0),
+          primaryColor: new Color(0xFF0A3D91),
+          accentColor: new Color(0xFFCC0000),
         ),
         initialRoute: "/",
         routes: <String, WidgetBuilder>{

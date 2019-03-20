@@ -69,7 +69,6 @@ class DeviceListScreenState extends State<DevicesListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Bluetooth devices'),
-        backgroundColor: Colors.blue,
       ),
       body: StreamBuilder<List<BleDevice>>(
         initialData: _devicesBloc.visibleDevices.value,
@@ -107,8 +106,8 @@ class DevicesList extends ListView {
             itemCount: devices.length,
             itemBuilder: (context, i) {
               Fimber.d("Build row for $i");
-              return _buildRow(
-                  devices[i], _createTapListener(devicesBloc, devices[i]));
+              return _buildRow(context, devices[i],
+                  _createTapListener(devicesBloc, devices[i]));
             });
 
   static DeviceTapListener _createTapListener(
@@ -132,19 +131,37 @@ class DevicesList extends ListView {
     }
   }
 
-  static Widget _buildRow(
-      BleDevice device, DeviceTapListener deviceTapListener) {
+  static Widget _buildRow(BuildContext context, BleDevice device,
+      DeviceTapListener deviceTapListener) {
     var isSensorTag = device.name == "SensorTag";
     return ListTile(
       leading: CircleAvatar(
-          child: Icon(isSensorTag ? Icons.adjust : Icons.bluetooth),
-          backgroundColor: isSensorTag ? Colors.red : Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: isSensorTag
+                ? Image.asset('assets/ti_logo.png')
+                : Icon(Icons.bluetooth),
+          ),
+          backgroundColor: isSensorTag
+              ? Theme.of(context).accentColor
+              : Theme.of(context).primaryColor,
           foregroundColor: Colors.white),
       title: Text(device.name),
       trailing: Icon(Icons.chevron_right, color: Colors.grey),
-      subtitle: Text(device.id.toString() +
-          "\n" +
-          _bluetoothDeviceTypeToString(device.bluetoothDevice.type)),
+      subtitle: Column(
+        children: <Widget>[
+          Text(_bluetoothDeviceTypeToString(device.bluetoothDevice.type),
+              style: TextStyle(
+                  fontSize: 14, color: Theme.of(context).primaryColor)),
+          Text(
+            device.id.toString(),
+            style: TextStyle(fontSize: 10),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          )
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
       onTap: deviceTapListener,
       isThreeLine: true,
     );
