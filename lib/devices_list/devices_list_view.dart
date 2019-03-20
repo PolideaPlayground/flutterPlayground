@@ -194,7 +194,10 @@ class DevicesList extends ListView {
   static Widget _buildRow(BuildContext context, BleDevice device,
       DeviceTapListener deviceTapListener) {
     return ListTile(
-      leading: _buildAvatar(context, device),
+      leading: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: _buildAvatar(context, device),
+      ),
       title: Text(device.name),
       trailing: Padding(
         padding: const EdgeInsets.only(top: 16),
