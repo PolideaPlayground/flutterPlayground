@@ -195,7 +195,7 @@ class DevicesList extends ListView {
       DeviceTapListener deviceTapListener) {
     return ListTile(
       leading: Padding(
-        padding: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 8),
         child: _buildAvatar(context, device),
       ),
       title: Text(device.name),
