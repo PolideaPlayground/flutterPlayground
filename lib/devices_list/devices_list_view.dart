@@ -99,11 +99,19 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   }
 }
 
-class HexPainter extends CustomPainter {
+class _HexPainter extends CustomPainter {
+  const _HexPainter({
+    this.backgroundColor = Colors.white,
+    this.foregroundColor = Colors.black,
+  }) : super();
+
+  final Color foregroundColor;
+  final Color backgroundColor;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    paint.color = Colors.white;
+    paint.color = backgroundColor;
     paint.strokeWidth = size.width * 0.5;
     paint.strokeJoin = StrokeJoin.round;
     paint.style = PaintingStyle.stroke;
@@ -118,7 +126,7 @@ class HexPainter extends CustomPainter {
     ], true);
     canvas.drawPath(path, paint);
 
-    paint.color = Colors.black;
+    paint.color = foregroundColor;
     paint.style = PaintingStyle.fill;
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.23),
         size.height * 0.08, paint);
@@ -171,9 +179,8 @@ class DevicesList extends ListView {
           foregroundColor: Colors.white);
     } else if (device.name.startsWith("Hex")) {
       return CircleAvatar(
-          child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white);
+          child: CustomPaint(painter: _HexPainter(), size: Size(20, 24)),
+          backgroundColor: Colors.black);
     }
     return CircleAvatar(
         child: Padding(
