@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:test/test.dart';
@@ -35,16 +37,19 @@ void main() {
     await untilCalled(deviceRepositoryMock.pickDevice(argThat(equals(bleDevice))));
   });
 
-  test("should change app state one device is picked", () {
+  test("should pass info that a device has been picked", () {
     //given
+    BehaviorSubject<BleDevice> devicePickerController = BehaviorSubject<BleDevice>();
+    when(deviceRepositoryMock.pickedDevice).thenAnswer((_) => devicePickerController.stream);
     devicesBloc.init();
+    var bleDevice = BleDeviceFactory.buildDisconnected();
 
     //then
-    expectLater(devicesBloc.applicationState, emitsInOrder([
-      ApplicationState.DEVICE_PICKED,
+    expectLater(devicesBloc.pickedDevice, emitsInOrder([
+      equals(bleDevice),
     ]));
 
     //when
-    devicesBloc.devicePicker.add(bleDevice);
+    devicePickerController.add(bleDevice);
   });
 }

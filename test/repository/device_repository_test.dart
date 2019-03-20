@@ -1,4 +1,5 @@
 
+import 'package:rxdart/rxdart.dart';
 import 'package:test/test.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:wear_hint/repository/device_repository.dart';
@@ -11,7 +12,7 @@ void main() {
     DeviceRepository deviceRepository = DeviceRepository();
 
     //when
-    BleDevice storedBleDevice = deviceRepository.pickedDevice;
+    BleDevice storedBleDevice = deviceRepository.pickedDevice.value;
 
     //then
     expect(storedBleDevice, isNull);
@@ -21,12 +22,12 @@ void main() {
     //given
     DeviceRepository deviceRepository = DeviceRepository();
     BleDevice bleDevice = BleDeviceFactory.buildDisconnected(name: "testqwe");
+    ValueObservable<BleDevice> pickedDevice = deviceRepository.pickedDevice;
 
     //when
     deviceRepository.pickDevice(bleDevice);
-    BleDevice storedBleDevice = deviceRepository.pickedDevice;
 
     //then
-    expect(storedBleDevice, equals(bleDevice));
+    expectLater(pickedDevice, emits(equals(bleDevice)));
   });
 }

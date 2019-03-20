@@ -14,9 +14,6 @@ class DevicesBloc {
       BehaviorSubject<List<BleDevice>>(seedValue: <BleDevice>[]);
 
   StreamController<BleDevice> _devicePickerController = StreamController<BleDevice>();
-  StreamController<ApplicationState> _applicationStateController = StreamController<ApplicationState>();
-
-  Stream<ApplicationState> get applicationState => _applicationStateController.stream;
 
   StreamSubscription<ScanResult> _scanSubscription;
   StreamSubscription _devicePickerSubscription;
@@ -29,13 +26,14 @@ class DevicesBloc {
   FlutterBlue _flutterBlue;
   DeviceRepository _deviceRepository;
 
+  Stream<BleDevice> get pickedDevice => _deviceRepository.pickedDevice.skipWhile((bleDevice) => bleDevice == null);
+
   DevicesBloc(this._flutterBlue, this._deviceRepository) {
     _flutterBlue.setLogLevel(LogLevel.error);
   }
 
   void _handlePickedDevice(BleDevice bleDevice) {
     _deviceRepository.pickDevice(bleDevice);
-    _applicationStateController.add(ApplicationState.DEVICE_PICKED);
   }
 
   void dispose() {
@@ -44,7 +42,6 @@ class DevicesBloc {
     _visibleDevicesController.close();
     _devicePickerController.close();
     _scanSubscription?.cancel();
-    _applicationStateController?.close();
   }
 
   void init() {
@@ -54,10 +51,6 @@ class DevicesBloc {
 
     if (_devicePickerController.isClosed) {
       _devicePickerController = StreamController<BleDevice>();
-    }
-
-    if (_applicationStateController.isClosed) {
-      _applicationStateController = StreamController<ApplicationState>();
     }
 
     _scanSubscription = _flutterBlue.scan().listen((ScanResult scanResult) {
