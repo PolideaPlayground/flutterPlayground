@@ -99,6 +99,35 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   }
 }
 
+class HexPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    paint.color = Colors.white;
+    paint.strokeWidth = size.width * 0.5;
+    paint.strokeJoin = StrokeJoin.round;
+    paint.style = PaintingStyle.stroke;
+    var path = Path();
+    path.addPolygon([
+      Offset(size.width * 0.25, size.height * 0.375),
+      Offset(size.width * 0.5, size.height * 0.25),
+      Offset(size.width * 0.75, size.height * 0.375),
+      Offset(size.width * 0.75, size.height * 0.625),
+      Offset(size.width * 0.5, size.height * 0.75),
+      Offset(size.width * 0.25, size.height * 0.625)
+    ], true);
+    canvas.drawPath(path, paint);
+
+    paint.color = Colors.black;
+    paint.style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.23),
+        size.height * 0.08, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.builder(
@@ -131,23 +160,36 @@ class DevicesList extends ListView {
     }
   }
 
+  static Widget _buildAvatar(BuildContext context, BleDevice device) {
+    if (device.name == "SensorTag") {
+      return CircleAvatar(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset('assets/ti_logo.png'),
+          ),
+          backgroundColor: Theme.of(context).accentColor,
+          foregroundColor: Colors.white);
+    } else if (device.name.startsWith("Hex")) {
+      return CircleAvatar(
+          child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white);
+    }
+    return CircleAvatar(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(Icons.bluetooth),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white);
+  }
+
   static Widget _buildRow(BuildContext context, BleDevice device,
       DeviceTapListener deviceTapListener) {
-    var isSensorTag = device.name == "SensorTag";
     return ListTile(
       leading: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
-        child: CircleAvatar(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: isSensorTag
-                  ? Image.asset('assets/ti_logo.png')
-                  : Icon(Icons.bluetooth),
-            ),
-            backgroundColor: isSensorTag
-                ? Theme.of(context).accentColor
-                : Theme.of(context).primaryColor,
-            foregroundColor: Colors.white),
+        child: _buildAvatar(context, device),
       ),
       title: Text(device.name),
       trailing: Padding(
@@ -171,25 +213,5 @@ class DevicesList extends ListView {
       onTap: deviceTapListener,
       isThreeLine: true,
     );
-    // return Card(
-    //   elevation: 8.0,
-    //   margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-    //   child: Container(
-    //     decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-    //     child: ListTile(
-    //       title: Text(device.name, style: _biggerFont),
-    //       trailing:
-    //           Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
-    //       leading: Container(
-    //         padding: EdgeInsets.only(right: 12.0),
-    //         decoration: new BoxDecoration(
-    //             border: new Border(
-    //                 right: new BorderSide(width: 1.0, color: Colors.white24))),
-    //         child: Icon(Icons.autorenew, color: Colors.white),
-    //       ),
-    //       onTap: deviceTapListener,
-    //     ),
-    //   ),
-    // );
   }
 }
