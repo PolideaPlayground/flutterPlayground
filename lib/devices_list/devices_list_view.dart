@@ -194,13 +194,10 @@ class DevicesList extends ListView {
   static Widget _buildRow(BuildContext context, BleDevice device,
       DeviceTapListener deviceTapListener) {
     return ListTile(
-      leading: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: _buildAvatar(context, device),
-      ),
+      leading: _buildAvatar(context, device),
       title: Text(device.name),
       trailing: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        padding: const EdgeInsets.only(top: 16),
         child: Icon(Icons.chevron_right, color: Colors.grey),
       ),
       subtitle: Column(
@@ -218,7 +215,7 @@ class DevicesList extends ListView {
         crossAxisAlignment: CrossAxisAlignment.start,
       ),
       onTap: deviceTapListener,
-      isThreeLine: true,
+      contentPadding: EdgeInsets.fromLTRB(16, 0, 16, 12),
     );
   }
 }
