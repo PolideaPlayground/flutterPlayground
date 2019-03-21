@@ -18,13 +18,7 @@ abstract class BleDevice {
 
   BleDevice(
       this.name, this.id, this.bluetoothDevice, this.bluetoothDeviceState) {
-    if (name == "SensorTag") {
-      this._category = DeviceCategory.sensorTag;
-    } else if (name.startsWith("Hex")) {
-      this._category = DeviceCategory.hex;
-    } else {
-      this._category = DeviceCategory.other;
-    }
+    _category = _nameToCategory(name);
   }
 
   factory BleDevice.connected(String name, BluetoothDevice bluetoothDevice) {
@@ -35,6 +29,16 @@ abstract class BleDevice {
       String name, BluetoothDevice bluetoothDevice, FlutterBlue flutterBlue) {
     return DisconnectedBleDevice(
         name, bluetoothDevice.id, bluetoothDevice, flutterBlue);
+  }
+
+  DeviceCategory _nameToCategory(String name) {
+    if (name == "SensorTag") {
+      return DeviceCategory.sensorTag;
+    } else if (name.startsWith("Hex")) {
+      return DeviceCategory.hex;
+    } else {
+      return DeviceCategory.other;
+    }
   }
 
   @override
