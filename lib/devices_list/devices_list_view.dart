@@ -136,22 +136,25 @@ class DevicesList extends ListView {
   }
 
   static Widget _buildAvatar(BuildContext context, BleDevice device) {
-    if (device.name == "SensorTag") {
-      return CircleAvatar(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/ti_logo.png'),
-          ),
-          backgroundColor: Theme.of(context).accentColor);
-    } else if (device.name.startsWith("Hex")) {
-      return CircleAvatar(
-          child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
-          backgroundColor: Colors.black);
+    switch (device.category) {
+      case DeviceCategory.sensorTag:
+        return CircleAvatar(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset('assets/ti_logo.png'),
+            ),
+            backgroundColor: Theme.of(context).accentColor);
+      case DeviceCategory.hex:
+        return CircleAvatar(
+            child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
+            backgroundColor: Colors.black);
+      case DeviceCategory.other:
+      default:
+        return CircleAvatar(
+            child: Icon(Icons.bluetooth),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white);
     }
-    return CircleAvatar(
-        child: Icon(Icons.bluetooth),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white);
   }
 
   static Widget _buildRow(BuildContext context, BleDevice device,
