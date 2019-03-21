@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
+import 'package:wear_hint/devices_list/hex_painder.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -98,43 +99,6 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   }
 }
 
-class _HexPainter extends CustomPainter {
-  const _HexPainter({
-    this.backgroundColor = Colors.white,
-    this.foregroundColor = Colors.black,
-  }) : super();
-
-  final Color foregroundColor;
-  final Color backgroundColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-    paint.color = backgroundColor;
-    paint.strokeWidth = size.width * 0.5;
-    paint.strokeJoin = StrokeJoin.round;
-    paint.style = PaintingStyle.stroke;
-    var path = Path();
-    path.addPolygon([
-      Offset(size.width * 0.25, size.height * 0.375),
-      Offset(size.width * 0.5, size.height * 0.25),
-      Offset(size.width * 0.75, size.height * 0.375),
-      Offset(size.width * 0.75, size.height * 0.625),
-      Offset(size.width * 0.5, size.height * 0.75),
-      Offset(size.width * 0.25, size.height * 0.625)
-    ], true);
-    canvas.drawPath(path, paint);
-
-    paint.color = foregroundColor;
-    paint.style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.23),
-        size.height * 0.08, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
 class DevicesList extends ListView {
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
       : super.separated(
@@ -181,7 +145,7 @@ class DevicesList extends ListView {
           backgroundColor: Theme.of(context).accentColor);
     } else if (device.name.startsWith("Hex")) {
       return CircleAvatar(
-          child: CustomPaint(painter: _HexPainter(), size: Size(20, 24)),
+          child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
           backgroundColor: Colors.black);
     }
     return CircleAvatar(
