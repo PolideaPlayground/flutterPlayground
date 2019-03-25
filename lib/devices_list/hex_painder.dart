@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 
 class HexPainter extends CustomPainter {
-  const HexPainter({
-    this.backgroundColor = Colors.white,
-    this.foregroundColor = Colors.black,
-  }) : super();
+  final Color _foregroundColor;
+  final Color _backgroundColor;
 
-  final Color foregroundColor;
-  final Color backgroundColor;
+  HexPainter({
+    Color backgroundColor,
+    Color foregroundColor,
+  })  : _backgroundColor = backgroundColor ?? Colors.white,
+        _foregroundColor = foregroundColor ?? Colors.black,
+        super();
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    paint.color = backgroundColor;
+    drawHexagon(canvas, size, paint);
+    drawButton(canvas, size, paint);
+  }
+
+  /// Draws rounded hexagon shape imitating Humon Hex device.
+  void drawHexagon(Canvas canvas, Size size, Paint paint) {
+    paint.color = _backgroundColor;
     paint.strokeWidth = size.width * 0.5;
     paint.strokeJoin = StrokeJoin.round;
     paint.style = PaintingStyle.stroke;
@@ -26,8 +34,11 @@ class HexPainter extends CustomPainter {
       Offset(size.width * 0.25, size.height * 0.625)
     ], true);
     canvas.drawPath(path, paint);
+  }
 
-    paint.color = foregroundColor;
+  /// Draws Humon Hex button.
+  void drawButton(Canvas canvas, Size size, Paint paint) {
+    paint.color = _foregroundColor;
     paint.style = PaintingStyle.fill;
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.23),
         size.height * 0.08, paint);
