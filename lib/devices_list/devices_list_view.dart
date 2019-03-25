@@ -73,11 +73,7 @@ class DeviceListScreenState extends State<DevicesListScreen> {
         title: Row(
           children: <Widget>[
             Text('Bluetooth devices'),
-            SizedBox(
-              child: BleSearchingIndicator(),
-              width: 32,
-              height: 20,
-            )
+            BleSearchingIndicator(size: 16)
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
