@@ -1,29 +1,22 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
+import 'package:wear_hint/devices_list/hex_painder.dart';
 import 'package:wear_hint/model/ble_device.dart';
-import 'package:wear_hint/repository/device_repository.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 typedef DeviceTapListener = void Function();
 
 class DevicesListScreen extends StatefulWidget {
-
   @override
-  State<DevicesListScreen> createState() {
-    return DeviceListScreenState();
-  }
-
-
+  State<DevicesListScreen> createState() => DeviceListScreenState();
 }
 
 class DeviceListScreenState extends State<DevicesListScreen> {
-
   DevicesBloc _devicesBloc;
   StreamSubscription _appStateSubscription;
 
@@ -42,14 +35,13 @@ class DeviceListScreenState extends State<DevicesListScreen> {
   void _onResume() {
     Fimber.d("onResume");
     _devicesBloc.init();
-    _appStateSubscription = _devicesBloc.pickedDevice.listen(
-            (bleDevice) async {
-              Fimber.d("navigate to details");
-          _onPause();
-          await Navigator.pushNamed(context, "/details");
-          _shouldRunOnResume = true;
-          Fimber.d("back from details");
-        });
+    _appStateSubscription = _devicesBloc.pickedDevice.listen((bleDevice) async {
+      Fimber.d("navigate to details");
+      _onPause();
+      await Navigator.pushNamed(context, "/details");
+      _shouldRunOnResume = true;
+      Fimber.d("back from details");
+    });
   }
 
   bool _shouldRunOnResume = true;
@@ -75,9 +67,8 @@ class DeviceListScreenState extends State<DevicesListScreen> {
       _onResume();
     }
     return Scaffold(
-      backgroundColor: Color.fromRGBO(58, 66, 86, 1.0),
       appBar: AppBar(
-        title: Text('BLE devices'),
+        title: Text('Bluetooth devices'),
       ),
       body: StreamBuilder<List<BleDevice>>(
         initialData: _devicesBloc.visibleDevices.value,
@@ -106,22 +97,21 @@ class DeviceListScreenState extends State<DevicesListScreen> {
     Fimber.d("reassemble");
     super.reassemble();
   }
-
-
 }
 
 class DevicesList extends ListView {
-  static final _biggerFont = const TextStyle(fontSize: 18.0);
-
   DevicesList(DevicesBloc devicesBloc, List<BleDevice> devices)
-      : super.builder(
-            padding: const EdgeInsets.all(16.0),
-//            shrinkWrap: true,
+      : super.separated(
+            separatorBuilder: (context, index) => Divider(
+                  color: Colors.grey[300],
+                  height: 0,
+                  indent: 0,
+                ),
             itemCount: devices.length,
             itemBuilder: (context, i) {
               Fimber.d("Build row for $i");
-              return _buildRow(
-                  devices[i], _createTapListener(devicesBloc, devices[i]));
+              return _buildRow(context, devices[i],
+                  _createTapListener(devicesBloc, devices[i]));
             });
 
   static DeviceTapListener _createTapListener(
@@ -132,26 +122,69 @@ class DevicesList extends ListView {
     };
   }
 
-  static Widget _buildRow(
-      BleDevice device, DeviceTapListener deviceTapListener) {
-    return Card(
-      elevation: 8.0,
-      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-      child: Container(
-        decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-        child: ListTile(
-          title: Text(device.name, style: _biggerFont),
-          trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0),
-          leading: Container(
-            padding: EdgeInsets.only(right: 12.0),
-            decoration: new BoxDecoration(
-                border: new Border(
-                    right: new BorderSide(width: 1.0, color: Colors.white24))),
-            child: Icon(Icons.autorenew, color: Colors.white),
-          ),
-          onTap: deviceTapListener,
-        ),
+  static String _bluetoothDeviceTypeToString(BluetoothDeviceType type) {
+    switch (type) {
+      case BluetoothDeviceType.classic:
+        return "Classic";
+      case BluetoothDeviceType.dual:
+        return "Dual-Mode";
+      case BluetoothDeviceType.le:
+        return "Low Energy";
+      default:
+        return "Unknown";
+    }
+  }
+
+  static Widget _buildAvatar(BuildContext context, BleDevice device) {
+    switch (device.category) {
+      case DeviceCategory.sensorTag:
+        return CircleAvatar(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset('assets/ti_logo.png'),
+            ),
+            backgroundColor: Theme.of(context).accentColor);
+      case DeviceCategory.hex:
+        return CircleAvatar(
+            child: CustomPaint(painter: HexPainter(), size: Size(20, 24)),
+            backgroundColor: Colors.black);
+      case DeviceCategory.other:
+      default:
+        return CircleAvatar(
+            child: Icon(Icons.bluetooth),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white);
+    }
+  }
+
+  static Widget _buildRow(BuildContext context, BleDevice device,
+      DeviceTapListener deviceTapListener) {
+    return ListTile(
+      leading: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: _buildAvatar(context, device),
       ),
+      title: Text(device.name),
+      trailing: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Icon(Icons.chevron_right, color: Colors.grey),
+      ),
+      subtitle: Column(
+        children: <Widget>[
+          Text(_bluetoothDeviceTypeToString(device.bluetoothDevice.type),
+              style: TextStyle(
+                  fontSize: 14, color: Theme.of(context).primaryColor)),
+          Text(
+            device.id.toString(),
+            style: TextStyle(fontSize: 10),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          )
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      onTap: deviceTapListener,
+      contentPadding: EdgeInsets.fromLTRB(16, 0, 16, 12),
     );
   }
 }

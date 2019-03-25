@@ -8,18 +8,37 @@ abstract class BleDevice {
   final String name;
   final DeviceIdentifier id;
   final BluetoothDevice bluetoothDevice;
+  DeviceCategory _category;
   BluetoothDeviceState bluetoothDeviceState = BluetoothDeviceState.disconnected;
 
-  bool get isConnected => bluetoothDeviceState == BluetoothDeviceState.connected;
+  bool get isConnected =>
+      bluetoothDeviceState == BluetoothDeviceState.connected;
 
-  BleDevice(this.name, this.id, this.bluetoothDevice, this.bluetoothDeviceState);
+  DeviceCategory get category => _category;
+
+  BleDevice(
+      this.name, this.id, this.bluetoothDevice, this.bluetoothDeviceState) {
+    _category = _nameToCategory(name);
+  }
 
   factory BleDevice.connected(String name, BluetoothDevice bluetoothDevice) {
     return ConnectedBleDevice(name, bluetoothDevice.id, bluetoothDevice);
   }
 
-  factory BleDevice.disconnected(String name, BluetoothDevice bluetoothDevice, FlutterBlue flutterBlue) {
-    return DisconnectedBleDevice(name, bluetoothDevice.id, bluetoothDevice, flutterBlue);
+  factory BleDevice.disconnected(
+      String name, BluetoothDevice bluetoothDevice, FlutterBlue flutterBlue) {
+    return DisconnectedBleDevice(
+        name, bluetoothDevice.id, bluetoothDevice, flutterBlue);
+  }
+
+  DeviceCategory _nameToCategory(String name) {
+    if (name == "SensorTag") {
+      return DeviceCategory.sensorTag;
+    } else if (name.startsWith("Hex")) {
+      return DeviceCategory.hex;
+    } else {
+      return DeviceCategory.other;
+    }
   }
 
   @override
@@ -35,16 +54,15 @@ abstract class BleDevice {
   }
 
   void abandon();
-
 }
 
 class DisconnectedBleDevice extends BleDevice {
-
   FlutterBlue _flutterBlue;
   StreamSubscription<BluetoothDeviceState> _connectionSubscription;
   StreamController<BleDevice> _devicesInConnectingProcess;
 
-  DisconnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice, this._flutterBlue)
+  DisconnectedBleDevice(String name, DeviceIdentifier id,
+      BluetoothDevice bluetoothDevice, this._flutterBlue)
       : super(name, id, bluetoothDevice, BluetoothDeviceState.disconnected);
 
   ConnectedBleDevice toConnected() {
@@ -59,9 +77,12 @@ class DisconnectedBleDevice extends BleDevice {
   Stream<BleDevice> connect() {
     _devicesInConnectingProcess?.close();
     _devicesInConnectingProcess = StreamController<BleDevice>();
-    _connectionSubscription = _flutterBlue.connect(bluetoothDevice).listen((connectionState) {
-      if(connectionState == BluetoothDeviceState.connecting) {
-        BleDevice newBleDevice = BleDevice.disconnected(name, bluetoothDevice, _flutterBlue)..bluetoothDeviceState = connectionState;
+    _connectionSubscription =
+        _flutterBlue.connect(bluetoothDevice).listen((connectionState) {
+      if (connectionState == BluetoothDeviceState.connecting) {
+        BleDevice newBleDevice =
+            BleDevice.disconnected(name, bluetoothDevice, _flutterBlue)
+              ..bluetoothDeviceState = connectionState;
         _devicesInConnectingProcess.add(newBleDevice);
       }
 
@@ -80,16 +101,20 @@ class DisconnectedBleDevice extends BleDevice {
 }
 
 class ConnectedBleDevice extends BleDevice {
-
   List<BluetoothService> services;
   StreamSubscription<BluetoothDeviceState> _connectionSubscription;
 
-  ConnectedBleDevice(String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice)
+  ConnectedBleDevice(
+      String name, DeviceIdentifier id, BluetoothDevice bluetoothDevice)
       : super(name, id, bluetoothDevice, BluetoothDeviceState.connected);
 
-  ConnectedBleDevice.fromDisconnected(DisconnectedBleDevice disconnectedBleDevice, this._connectionSubscription)
-      : super(disconnectedBleDevice.name, disconnectedBleDevice.id,
-        disconnectedBleDevice.bluetoothDevice, BluetoothDeviceState.connected);
+  ConnectedBleDevice.fromDisconnected(
+      DisconnectedBleDevice disconnectedBleDevice, this._connectionSubscription)
+      : super(
+            disconnectedBleDevice.name,
+            disconnectedBleDevice.id,
+            disconnectedBleDevice.bluetoothDevice,
+            BluetoothDeviceState.connected);
 
   void abandon() {
     _connectionSubscription?.cancel();
@@ -104,3 +129,5 @@ class ConnectedBleDevice extends BleDevice {
     return buffer.toString();
   }
 }
+
+enum DeviceCategory { sensorTag, hex, other }
