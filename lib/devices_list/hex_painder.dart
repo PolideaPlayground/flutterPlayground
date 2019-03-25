@@ -14,6 +14,12 @@ class HexPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
+    drawHexagon(canvas, size, paint);
+    drawButton(canvas, size, paint);
+  }
+
+  /// Draws rounded hexagon shape imitating Humon Hex device.
+  void drawHexagon(Canvas canvas, Size size, Paint paint) {
     paint.color = _backgroundColor;
     paint.strokeWidth = size.width * 0.5;
     paint.strokeJoin = StrokeJoin.round;
@@ -28,7 +34,10 @@ class HexPainter extends CustomPainter {
       Offset(size.width * 0.25, size.height * 0.625)
     ], true);
     canvas.drawPath(path, paint);
+  }
 
+  /// Draws Humon Hex button.
+  void drawButton(Canvas canvas, Size size, Paint paint) {
     paint.color = _foregroundColor;
     paint.style = PaintingStyle.fill;
     canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.23),
