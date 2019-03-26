@@ -14,10 +14,8 @@ class BleSearchingIndicator extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    print(size);
-    return BleSearchingIndicatorState(size: size, color: color);
-  }
+  State<StatefulWidget> createState() =>
+      BleSearchingIndicatorState(size: size, color: color);
 }
 
 class BleSearchingIndicatorState extends State<BleSearchingIndicator>
