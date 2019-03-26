@@ -40,44 +40,42 @@ class BleSearchingIndicatorState extends State<BleSearchingIndicator>
   }
 
   Widget _buildFrame(int frameNumber) {
-    return LayoutBuilder(builder: (context, constraints) {
-      switch (frameNumber) {
-        case 0:
-          return Transform.translate(
-            child: Icon(
-              Icons.bluetooth,
-              color: color,
-              size: size,
-            ),
-            // Matches 'bluetooth' icon with 'bluetooth_searching' icon.
-            offset: Offset(-0.0835 * (size ?? IconTheme.of(context).size), 0),
-          );
-        case 1:
-          return ClipRect(
-            // Removes the bigger wave shape.
-            clipper: _BigWaveClipper(),
-            child: Icon(
-              Icons.bluetooth_searching,
-              color: color,
-              size: size,
-            ),
-          );
-        case 2:
-          return Icon(Icons.bluetooth_searching, color: color, size: size);
-        case 3:
-          // Removes the smaller wave shape.
-          return ClipPath(
-            clipper: _SmallWaveClipper(),
-            child: Icon(
-              Icons.bluetooth_searching,
-              color: color,
-              size: size,
-            ),
-          );
-        default:
-          return null;
-      }
-    });
+    switch (frameNumber) {
+      case 0:
+        return Transform.translate(
+          child: Icon(
+            Icons.bluetooth,
+            color: color,
+            size: size,
+          ),
+          // Matches 'bluetooth' icon with 'bluetooth_searching' icon.
+          offset: Offset(-0.0835 * (size ?? IconTheme.of(context).size), 0),
+        );
+      case 1:
+        return ClipRect(
+          // Removes the bigger wave shape.
+          clipper: _BigWaveClipper(),
+          child: Icon(
+            Icons.bluetooth_searching,
+            color: color,
+            size: size,
+          ),
+        );
+      case 2:
+        return Icon(Icons.bluetooth_searching, color: color, size: size);
+      case 3:
+        // Removes the smaller wave shape.
+        return ClipPath(
+          clipper: _SmallWaveClipper(),
+          child: Icon(
+            Icons.bluetooth_searching,
+            color: color,
+            size: size,
+          ),
+        );
+      default:
+        return null;
+    }
   }
 
   @override
