@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class BleSearchingIndicator extends StatefulWidget {
-  final size;
-  final color;
+  final double size;
+  final Color color;
 
   BleSearchingIndicator({
     Key key,
@@ -49,7 +49,7 @@ class BleSearchingIndicatorState extends State<BleSearchingIndicator>
             child: Icon(
               Icons.bluetooth,
               color: color,
-              size: this.size,
+              size: size,
             ),
             // Matches 'bluetooth' icon with 'bluetooth_searching' icon.
             offset: Offset(-0.0835 * (size ?? IconTheme.of(context).size), 0),
