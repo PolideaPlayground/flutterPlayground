@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 
 import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:wear_hint/devices_list/devices_bloc.dart';
 import 'package:wear_hint/devices_list/devices_bloc_provider.dart';
 import 'package:wear_hint/devices_list/hex_painder.dart';
+import 'package:wear_hint/devices_list/searching_indicator.dart';
 import 'package:wear_hint/model/ble_device.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -68,7 +70,16 @@ class DeviceListScreenState extends State<DevicesListScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bluetooth devices'),
+        title: Row(
+          children: <Widget>[
+            Text('Bluetooth devices'),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: BleSearchingIndicator(size: 16),
+            )
+          ],
+          mainAxisAlignment: MainAxisAlignment.center,
+        ),
       ),
       body: StreamBuilder<List<BleDevice>>(
         initialData: _devicesBloc.visibleDevices.value,
